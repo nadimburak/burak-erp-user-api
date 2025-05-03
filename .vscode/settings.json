@@ -1,0 +1,18 @@
+{
+  "rest-client.environmentVariables": {
+    "sandbox": {
+      "baseUrl": "http://localhost:4001/",
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q3ZWU4ZGJkYTdkMzYyOTA0M2UyNmMiLCJpYXQiOjE3NDMyMzk2NjYsImV4cCI6MTc0MzI3NTY2Nn0.SG6SMaMdAuGwHKC8QU0gKLpjyNDcUBITr1oHUulEB0Y",
+      "companyUserAccessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Q5NDA2OGI1ZTg4MGQ3ZWMyZWYzYTUiLCJpYXQiOjE3NDMyNDAzNDAsImV4cCI6MTc0MzI3NjM0MH0.34NFRqlwK4hBaMbL_EB5VGWmdl8XPkewAtij3U6e3WE",
+      "customerAccessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2RiYzgxYmY2MTVlZDE0ZTNiNGFkYzYiLCJpYXQiOjE3NDMyNDA3ODgsImV4cCI6MTc0MzI3Njc4OH0.NMJh5Rq54QniLVK_vJOAvKIOJTpnn0t3QCaB-r5_mPQ"
+    },
+    "production": {
+      "baseUrl": "http://localhost:4001/",
+      "accessToken": "2|xGPxxLZzQgX5NEV741PeizCYbBeIrG8MowPdsv06"
+    },
+    "staging": {
+      "baseUrl": "https://emr-api.vercel.app/",
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzcyNDk0NjU1NjhjYWJiNjZlMDY3YWYiLCJpYXQiOjE3MzU4MDQzMDYsImV4cCI6MTczNTgwNzkwNn0.-bp7tezbZuyjTHqEytRF6-6uETdMCYdLCaEF-q9EYZo"
+    }
+  }
+}

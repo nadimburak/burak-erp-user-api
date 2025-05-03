@@ -1,0 +1,16 @@
+{
+    "rest-client.environmentVariables": {
+        "sandbox": {
+            "baseUrl": "http://localhost:4001/",
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzU4ODRiOTk4NTAwZjcxNjI1MTg1MTIiLCJpYXQiOjE3MzQzMzQ4MDYsImV4cCI6MTczNDMzODQwNn0.dDyEZEk3_7LiiVnq6MGqAqu6IYNHToIBWsabtjoJVOs",
+        },
+        "production": {
+            "baseUrl": "http://localhost:4001/",
+            "accessToken": "2|xGPxxLZzQgX5NEV741PeizCYbBeIrG8MowPdsv06",
+        },
+        "staging": {
+            "baseUrl": "http://localhost:4001/",
+            "accessToken": "5254|x4VQHEq3MYRWlr6f72LqYIkjsdfWa3Y4LwLk2O20",
+        }
+    }
+}
