@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import { getSample, createSample } from '../controllers/sampleController';
-
 const router = Router();
 
-router.get('/', getSample);
-router.post('/', createSample);
+router.get('/', (req, res) => {
+    res.send("Hello, TypeScript with Express!");
+});
 
 export default router;
