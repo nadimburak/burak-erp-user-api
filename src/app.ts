@@ -17,7 +17,7 @@ class App {
   constructor() {
     this.app = express();
     this.MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/defaultdb';
-    
+
     this.initializeMiddlewares();
     this.initializeDatabase();
     this.initializeRoutes();
@@ -29,7 +29,7 @@ class App {
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: false }));
     this.app.use(cors());
-    
+
     // Add request logging middleware (optional)
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       console.log(`${req.method} ${req.path}`);
@@ -45,11 +45,6 @@ class App {
 
   private initializeRoutes(): void {
     this.app.use('/', routes);
-    
-    // Health check endpoint
-    this.app.get('/health', (req: Request, res: Response) => {
-      res.status(200).json({ status: 'OK' });
-    });
   }
 
   private initializeErrorHandling(): void {
