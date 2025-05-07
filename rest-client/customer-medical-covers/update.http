@@ -1,0 +1,10 @@
+PUT {{baseUrl}}user/customer-medical-covers/6769323770fb18a00573ee90 HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "medical_condition": "6769122a0c2828219e1452e0",
+    "details":"vfdvfwe"
+
+}

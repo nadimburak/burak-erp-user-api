@@ -1,0 +1,4 @@
+DELETE {{baseUrl}}user/report-documents/679895408e6985a673845a0b HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}

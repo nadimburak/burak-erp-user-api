@@ -1,17 +1,17 @@
-import { Router } from 'express';
-import authRoutes from './auth';
+import express, { Request, Response } from "express";
+import customerRouter from "./routes";
 
-const router = Router();
+const app = express();
 
-router.get('/', (req, res) => {
-    res.send("Hello, TypeScript with Express!");
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello, TypeScript with Express!");
 });
 
 // Health check endpoint
-router.get('/health', (req, res) => {
-    res.status(200).json({ status: 'OK' });
-});
+// router.get('/health', (req, res) => {
+//     res.status(200).json({ status: 'OK' });
+// });
 
-router.use('/auth', authRoutes);
+app.use("/user", customerRouter);
 
-export default router;
+export default app;
