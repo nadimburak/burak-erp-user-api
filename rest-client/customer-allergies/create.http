@@ -1,0 +1,10 @@
+POST {{baseUrl}}user/customer-allergies HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "allergy": "6786041d2bd69fc3dce546c4",
+    "details":"vfdvfwe"
+
+}

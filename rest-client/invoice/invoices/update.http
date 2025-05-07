@@ -1,0 +1,15 @@
+PUT {{baseUrl}}user/invoices/6766575e6ca4634ca58c4932 HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+
+    "appointment":"6784b45b9250d62542221dd3",
+    "company_user":"6784b45b9250d62542221dd3",
+    "detail":"fvfd",
+    "date":"2024-03-06",
+    "total_amount":"32.4",
+    "total_tax":"33.4",
+    "total_discount":"43.32"
+}

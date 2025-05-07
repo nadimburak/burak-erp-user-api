@@ -1,0 +1,10 @@
+POST {{baseUrl}}user/customer-vaccinations HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "vaccination": "6769122a0c2828219e1452e0",
+    "details": "vfrr"
+
+}

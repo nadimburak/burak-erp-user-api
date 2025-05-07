@@ -1,0 +1,13 @@
+POST {{baseUrl}}user/report-documents HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "appointment": "67e3ac1b4319316cabf0163b",
+    "company": "67d7c807ff0e4333fbd90e91",
+    "company_user": "67d94068b5e880d7ec2ef3a5",
+    "details":"vfdvfwe",
+    "url":"grgre",
+    "date":"2024-03-06"
+}
