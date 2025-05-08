@@ -1,0 +1,4 @@
+DELETE {{baseUrl}}user/apply-appointment/67ff8137a3884d14f4e06b32 HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}

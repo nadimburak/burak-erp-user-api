@@ -1,0 +1,4 @@
+GET {{baseUrl}}user/vacancy-status/680a177857fedccfaa90c055 HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}

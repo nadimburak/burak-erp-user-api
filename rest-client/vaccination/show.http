@@ -1,0 +1,4 @@
+GET {{baseUrl}}user/vaccinations67860854d7685531b15bc668 HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}

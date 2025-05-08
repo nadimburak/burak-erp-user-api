@@ -1,0 +1,4 @@
+DELETE {{baseUrl}}user/customer-allergies/67a7086c1f845199b04553de HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
