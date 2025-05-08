@@ -1,4 +1,0 @@
-DELETE {{baseUrl}}user/vacancy-status/680f517f2d40421313c34052 HTTP/1.1
-Content-Type: application/json
-Accept: application/json
-Authorization: Bearer {{accessToken}}

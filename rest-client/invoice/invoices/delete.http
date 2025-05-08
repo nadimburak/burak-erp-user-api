@@ -1,4 +1,0 @@
-DELETE {{baseUrl}}user/invoices/678a48eedc332f944209c8ea HTTP/1.1
-Content-Type: application/json
-Accept: application/json
-Authorization: Bearer {{accessToken}}
