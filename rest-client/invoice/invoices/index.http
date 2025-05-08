@@ -1,4 +1,0 @@
-GET {{baseUrl}}user/invoices?page=1&limit=10&appointment=67da9aefd10feac61da01874 HTTP/1.1
-Content-Type: application/json
-Accept: application/json
-Authorization: Bearer {{accessToken}}
