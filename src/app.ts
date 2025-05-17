@@ -108,7 +108,9 @@ class App {
     const mongooseOptions: ConnectOptions = {
       retryWrites: true,
       w: 'majority',
-      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+      serverSelectionTimeoutMS: 5000, // 5 seconds
+      socketTimeoutMS: 45000, // 45 seconds
+      connectTimeoutMS: 30000 // 30 seconds
     };
 
     mongoose
