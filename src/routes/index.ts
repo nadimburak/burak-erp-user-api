@@ -1,10 +1,21 @@
 import express, { Request, Response } from "express";
 import authRoutes from "./auth";
 import middlewareRoutes from "./middleware";
+import { seedDB } from "../seeder";
 
 const app = express();
 
 app.get("/", (req: Request, res: Response) => {
+  res.send("Hello, TypeScript with Express!");
+});
+
+app.get("/seed", (req: Request, res: Response) => {
+  try {
+    seedDB()
+  } catch (error) {
+    console.error('MongoDB test error:', error);
+    res.status(500).json({ error: 'MongoDB operation failed' });
+  }
   res.send("Hello, TypeScript with Express!");
 });
 
