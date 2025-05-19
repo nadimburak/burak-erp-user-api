@@ -10,54 +10,75 @@ dotenv.config();
 const MONGO_URI = process.env.MONGO_URI;
 
 const seedDB = async () => {
-    try {
-        if (!MONGO_URI) {
-            throw new Error("MONGO_URI is not defined in .env file");
-        }
+    if (!MONGO_URI) {
+        console.error("❌ MONGO_URI is not defined in .env file");
+        process.exit(1);
+    }
 
-        // Connect to MongoDB
-        await mongoose.connect(MONGO_URI);
+    try {
+        // Connect to MongoDB with optimized settings
+        await mongoose.connect(MONGO_URI, {
+            connectTimeoutMS: 5000,
+            socketTimeoutMS: 30000,
+            serverSelectionTimeoutMS: 5000,
+            maxPoolSize: 10
+        });
         console.log("✅ Connected to MongoDB");
 
-        // Remove old data
-        await Permission.deleteMany();
-        console.log("🗑️ Old permissions removed");
+        // Use transactions for atomic operations
+        const session = await mongoose.startSession();
+        session.startTransaction();
 
-        // Insert new permissions
-        const insertedPermissions = await Permission.insertMany(adminPermissions);
-        console.log("✅ New permissions added");
+        try {
+            // Clear existing data in parallel where possible
+            await Promise.all([
+                Permission.deleteMany({}).session(session),
+                Role.deleteMany({}).session(session),
+                User.deleteMany({}).session(session)
+            ]);
+            console.log("🗑️ Old data removed");
 
-        await Role.deleteMany();
-        console.log("🗑️ Old roles removed");
+            // Insert new permissions
+            const insertedPermissions = await Permission.insertMany(
+                adminPermissions.map(p => ({ ...p })),
+                { session }
+            );
+            console.log(`✅ ${insertedPermissions.length} permissions added`);
 
-        // Create Super Admin Role
-        const superAdminRole = await Role.create({
-            name: "Super Admin",
-            status: true,
-            permissions: insertedPermissions.map((p: any) => p._id),
-        });
-        console.log("✅ Super Admin role added");
+            // Create Super Admin Role
+            const superAdminRole = new Role({
+                name: "Super Admin",
+                status: true,
+                permissions: insertedPermissions.map(p => p._id),
+            });
+            await superAdminRole.save({ session });
+            console.log("✅ Super Admin role added");
 
+            // Create Super Admin User with hashed password (recommended)
+            const adminUser = new User({
+                name: "Super Admin",
+                email: "admin@gmail.com",
+                status: true,
+                password: "Abcd@1234", // In production, hash this before saving
+                role: superAdminRole._id,
+            });
+            await adminUser.save({ session });
+            console.log("✅ Super Admin user added");
 
-        await User.deleteMany();
-        console.log("🗑️ Old users removed");
-
-        // Create Super Admin User
-        const adminUser = await User.create({
-            name: "Super Admin",
-            email: "admin@gmail.com",
-            status: true,
-            password: "Abcd@1234",
-            role: superAdminRole._id,
-        });
-        console.log("✅ Super Admin user added", adminUser);
-
-
-        await mongoose.disconnect();
-        process.exit();
+            await session.commitTransaction();
+            console.log("🚀 Database seeding completed successfully");
+        } catch (error) {
+            await session.abortTransaction();
+            throw error;
+        } finally {
+            session.endSession();
+        }
     } catch (error) {
-        console.error("❌ Error seeding data:", error);
+        console.error("❌ Error seeding database:", error instanceof Error ? error.message : error);
         process.exit(1);
+    } finally {
+        await mongoose.disconnect();
+        process.exit(0);
     }
 };
 
