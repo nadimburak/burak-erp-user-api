@@ -1,6 +1,9 @@
 import express, { Request, Response } from "express";
 import authRoutes from "./auth";
 import middlewareRoutes from "./middleware";
+import permissionRoutes from "./permissions";
+import roleRoutes from "./roles";
+import userRoutes from "./users";
 import { seedDB } from "../seeder";
 
 const app = express();
@@ -21,5 +24,6 @@ app.get("/seed", (req: Request, res: Response) => {
 
 app.use("/auth", authRoutes);
 app.use("/middleware", middlewareRoutes);
+app.use("/user", [permissionRoutes, roleRoutes, userRoutes]);
 
 export default app;
