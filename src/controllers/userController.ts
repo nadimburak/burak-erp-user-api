@@ -21,12 +21,14 @@ export const getUsers = async (req: Request, res: Response) => {
 
     const query: any = search
       ? {
-        $or: [
-          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-          { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
-        ],
-      }
+          $or: [
+            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+            { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
+          ],
+        }
       : {};
+
+    query.type = "user";
 
     // Fetch data with pagination, sorting, and filtering
     const data = await User.find(query)
@@ -78,7 +80,14 @@ export const createUser = async (req: Request, res: Response) => {
       res.status(400).json({ message: `${modelTitle} already exists.` });
     }
 
-    const newData: IUser = new User({ role, name, email, password, status });
+    const newData: IUser = new User({
+      role,
+      name,
+      email,
+      password,
+      status,
+      type: "user",
+    });
     await newData.save();
 
     res
@@ -94,7 +103,13 @@ export const updateUser = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { name, email, password, role, status } = req.body;
 
-    const updatedData: Partial<IUser> = { name, email, role, status };
+    const updatedData: Partial<IUser> = {
+      name,
+      email,
+      role,
+      status,
+      type: "user",
+    };
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       updatedData.password = hashedPassword; // Update password only if provided
