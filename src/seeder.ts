@@ -1,64 +1,47 @@
-import dotenv from "dotenv";
-import mongoose from "mongoose";
 import Permission from "./models/Permission";
 import Role from "./models/Role";
 import User from "./models/User";
 import { adminPermissions } from "./utils/adminPermissions";
 
-dotenv.config();
-
-const MONGO_URI = process.env.MONGO_URI;
-
-const seedDB = async () => {
+export const seedDB = async () => {
     try {
-        if (!MONGO_URI) {
-            throw new Error("MONGO_URI is not defined in .env file");
-        }
-
-        // Connect to MongoDB
-        await mongoose.connect(MONGO_URI);
-        console.log("✅ Connected to MongoDB");
-
-        // Remove old data
-        await Permission.deleteMany();
-        console.log("🗑️ Old permissions removed");
+        // Clear existing data in parallel where possible
+        await Promise.all([
+            Permission.deleteMany({}),
+            Role.deleteMany({}),
+            User.deleteMany({})
+        ]);
+        console.log("🗑️ Old data removed");
 
         // Insert new permissions
-        const insertedPermissions = await Permission.insertMany(adminPermissions);
-        console.log("✅ New permissions added");
+        const insertedPermissions = await Permission.insertMany(
+            adminPermissions.map(p => ({ ...p })),
 
-        await Role.deleteMany();
-        console.log("🗑️ Old roles removed");
+        );
+        console.log(`✅ ${insertedPermissions.length} permissions added`);
 
         // Create Super Admin Role
-        const superAdminRole = await Role.create({
+        const superAdminRole = new Role({
             name: "Super Admin",
             status: true,
-            permissions: insertedPermissions.map((p: any) => p._id),
+            permissions: insertedPermissions.map(p => p._id),
         });
+        await superAdminRole.save();
         console.log("✅ Super Admin role added");
 
-
-        await User.deleteMany();
-        console.log("🗑️ Old users removed");
-
-        // Create Super Admin User
-        const adminUser = await User.create({
+        // Create Super Admin User with hashed password (recommended)
+        const adminUser = new User({
             name: "Super Admin",
             email: "admin@gmail.com",
             status: true,
-            password: "Abcd@1234",
+            password: "Abcd@1234", // In production, hash this before saving
             role: superAdminRole._id,
+            type: "user"
         });
-        console.log("✅ Super Admin user added", adminUser);
+        await adminUser.save();
+        console.log("✅ Super Admin user added");
 
-
-        await mongoose.disconnect();
-        process.exit();
     } catch (error) {
-        console.error("❌ Error seeding data:", error);
-        process.exit(1);
+        throw error;
     }
 };
-
-seedDB();

@@ -2,7 +2,7 @@
     "rest-client.environmentVariables": {
         "sandbox": {
             "baseUrl": "http://localhost:7001/",
-            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Y3NmY0ZTg4OTNmMzhjYzZlOTVkYzEiLCJpYXQiOjE3NDY3MDM5MjUsImV4cCI6MTc0NzA2MzkyNX0.ba-gv_conWEQJoZ6XVHFx2LIP9tR-ZeYjicJfSTGKTk",
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Y3NmY0ZTg4OTNmMzhjYzZlOTVkYzEiLCJpYXQiOjE3NDc1MDQ4ODUsImV4cCI6MTc0Nzg2NDg4NX0.wf-oJW97K6hFGTKXGj7RVBuq7QqQm8PNn5hX4AvCfgE",
         },
         "production": {
             "baseUrl": "http://localhost:7001/",
@@ -10,7 +10,7 @@
         },
         "staging": {
             "baseUrl": "https://burak-erp-user-api.vercel.app/",
-            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Y3NmY0ZTg4OTNmMzhjYzZlOTVkYzEiLCJpYXQiOjE3NDc0MTMzNDUsImV4cCI6MTc0Nzc3MzM0NX0.2LRSOoVXPlgODl29FZHj6rfZqzG5AmN6BRKNLyYPXbg",
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Y3NmY0ZTg4OTNmMzhjYzZlOTVkYzEiLCJpYXQiOjE3NDc0Nzk5MzQsImV4cCI6MTc0NzgzOTkzNH0.CiejYq_Ber5zLavQT0H36T0aOYj04Tz-u0NVVW_yND4",
         }
     }
 }

@@ -1,5 +1,10 @@
 import express, { Request, Response } from "express";
 import authRoutes from "./auth";
+import middlewareRoutes from "./middleware";
+import permissionRoutes from "./permissions";
+import roleRoutes from "./roles";
+import userRoutes from "./users";
+import { seedDB } from "../seeder";
 
 const app = express();
 
@@ -7,6 +12,18 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello, TypeScript with Express!");
 });
 
+app.get("/seed", (req: Request, res: Response) => {
+  try {
+    seedDB()
+  } catch (error) {
+    console.error('MongoDB test error:', error);
+    res.status(500).json({ error: 'MongoDB operation failed' });
+  }
+  res.send("Hello, TypeScript with Express!");
+});
+
 app.use("/auth", authRoutes);
+app.use("/middleware", middlewareRoutes);
+app.use("/user", [permissionRoutes, roleRoutes, userRoutes]);
 
 export default app;
