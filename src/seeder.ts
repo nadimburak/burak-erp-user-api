@@ -36,6 +36,7 @@ export const seedDB = async () => {
             status: true,
             password: "Abcd@1234", // In production, hash this before saving
             role: superAdminRole._id,
+            type: "user"
         });
         await adminUser.save();
         console.log("✅ Super Admin user added");
