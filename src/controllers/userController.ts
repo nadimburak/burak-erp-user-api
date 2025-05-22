@@ -4,6 +4,9 @@ import User, { IUser } from "../models/User";
 
 const modelTitle = "User";
 
+
+
+//for onlu user tyes
 export const getUsers = async (req: Request, res: Response) => {
   try {
     const {
@@ -52,6 +55,60 @@ export const getUsers = async (req: Request, res: Response) => {
     res.status(500).json({ message: `Error ${modelTitle}.`, error });
   }
 };
+
+
+
+//for all users
+export const getALLUsers = async (req: Request, res: Response) => {
+  try {
+    const {
+      page = "1", 
+      limit = "10", 
+      sortBy = "name", 
+      order = "asc",
+      search = "",
+    } = req.query;
+
+    // Parse and validate page and limit
+    const parsedPage = Math.max(parseInt(page as string, 10), 1); // Minimum value 1
+    const parsedLimit = Math.max(parseInt(limit as string, 10), 1); // Minimum value 1
+    const sortOrder = order === "asc" ? 1 : -1; // Convert order to MongoDB format
+
+    const query: any = search
+      ? {
+          $or: [
+            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+            { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
+          ],
+        }
+      : {};
+
+    // query.type = "user";
+
+    // Fetch data with pagination, sorting, and filtering
+    const data = await User.find(query)
+      .populate("role", "name")
+      .select("-password")
+      .sort({ [sortBy as string]: sortOrder })
+      .skip((parsedPage - 1) * parsedLimit)
+      .limit(parsedLimit);
+
+    // Count total documents
+    const totalData = await User.countDocuments(query);
+
+    // Send the response
+    res.status(200).json({
+      data,
+      total: totalData,
+      currentPage: parsedPage,
+      totalPages: Math.ceil(totalData / parsedLimit),
+    });
+  } catch (error) {
+    res.status(500).json({ message: `Error ${modelTitle}.`, error });
+  }
+};
+
+
 
 export const getUser = async (req: Request, res: Response) => {
   try {
