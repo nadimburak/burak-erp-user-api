@@ -6,7 +6,7 @@ const modelTitle = "User";
 
 
 
-//for onlu user tyes
+//for only user type
 export const getUsers = async (req: Request, res: Response) => {
   try {
     const {
