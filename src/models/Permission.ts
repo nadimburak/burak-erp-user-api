@@ -15,7 +15,7 @@ const PermissionSchema: Schema<IPermission> = new Schema(
     name: {
       type: String,
       required: true,
-      // unique: true,
+      unique: true,
     },
     status: {
       type: Boolean,
