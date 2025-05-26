@@ -15,11 +15,11 @@ app.get("/", (req: Request, res: Response) => {
 app.get("/seed", (req: Request, res: Response) => {
   try {
     seedDB()
+    res.send("Seeder run successfully!");
   } catch (error) {
     console.error('MongoDB test error:', error);
     res.status(500).json({ error: 'MongoDB operation failed' });
   }
-  res.send("Hello, TypeScript with Express!");
 });
 
 app.use("/auth", authRoutes);
