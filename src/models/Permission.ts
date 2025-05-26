@@ -24,9 +24,8 @@ const PermissionSchema: Schema<IPermission> = new Schema(
     company: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
-      required: true,
-    }, 
-
+      required: false,
+    },
     created_at: {
       type: Date,
       default: Date.now,
@@ -37,7 +36,7 @@ const PermissionSchema: Schema<IPermission> = new Schema(
     },
   },
   {
-    timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, 
+    timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
   }
 );
 PermissionSchema.index({ name: 1, company: 1 }, { unique: true });

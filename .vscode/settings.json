@@ -1,16 +1,16 @@
 {
-    "rest-client.environmentVariables": {
-        "sandbox": {
-            "baseUrl": "http://localhost:7001/",
-            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODJkYjczY2QwMTM2MzZjYTgxMWRmYTEiLCJpYXQiOjE3NDc4OTY3MTEsImV4cCI6MTc0ODI1NjcxMX0.1jnmbktWOfZMyMI1q7QXNQVAZdpx6_umqURqsfMdTcE",
-        },
-        "production": {
-            "baseUrl": "http://localhost:7001/",
-            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Y3NmY0ZTg4OTNmMzhjYzZlOTVkYzEiLCJpYXQiOjE3NDYyNzYzMDUsImV4cCI6MTc0NjYzNjMwNX0.w1tBpo5_f8VHtNj9CMA3cKzwJ9IgwwK56RCY1pfmDlE",
-        },
-        "staging": {
-            "baseUrl": "https://burak-erp-user-api.vercel.app/",
-            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Y3NmY0ZTg4OTNmMzhjYzZlOTVkYzEiLCJpYXQiOjE3NDc0Nzk5MzQsImV4cCI6MTc0NzgzOTkzNH0.CiejYq_Ber5zLavQT0H36T0aOYj04Tz-u0NVVW_yND4",
-        }
+  "rest-client.environmentVariables": {
+    "sandbox": {
+      "baseUrl": "http://localhost:7001/",
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODMxYzRiMjFmOGU4Y2FlZDU3NjY4MWMiLCJpYXQiOjE3NDgwOTIzNTMsImV4cCI6MTc0ODQ1MjM1M30.aW6jPfCLjENeENWAqjqDJdu2M4bHOKLJoMSP8hD-Fzk"
+    },
+    "production": {
+      "baseUrl": "http://localhost:7001/",
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Y3NmY0ZTg4OTNmMzhjYzZlOTVkYzEiLCJpYXQiOjE3NDYyNzYzMDUsImV4cCI6MTc0NjYzNjMwNX0.w1tBpo5_f8VHtNj9CMA3cKzwJ9IgwwK56RCY1pfmDlE"
+    },
+    "staging": {
+      "baseUrl": "https://burak-erp-user-api.vercel.app/",
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2Y3NmY0ZTg4OTNmMzhjYzZlOTVkYzEiLCJpYXQiOjE3NDc0Nzk5MzQsImV4cCI6MTc0NzgzOTkzNH0.CiejYq_Ber5zLavQT0H36T0aOYj04Tz-u0NVVW_yND4"
     }
+  }
 }
