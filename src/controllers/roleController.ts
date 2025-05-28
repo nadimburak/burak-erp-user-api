@@ -11,6 +11,7 @@ export const getRoles = async (req: Request, res: Response) => {
       limit = "10", // Default to limit 10 if not provided
       sortBy = "name", // Default sorting field
       order = "asc", // Default order
+      search = "",
     } = req.query;
 
     // Parse and validate page and limit
@@ -18,8 +19,18 @@ export const getRoles = async (req: Request, res: Response) => {
     const parsedLimit = Math.max(parseInt(limit as string, 10), 1); // Minimum value 1
     const sortOrder = order === "asc" ? 1 : -1; // Convert order to MongoDB format
 
+    const query: any = search
+      ? {
+        $or: [
+          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+        ],
+      }
+      : {};
+
+    query.company != null;
+
     // Fetch locations with sorting and pagination
-    const data = await Role.find({})
+    const data = await Role.find(query)
       .populate("permissions", "name")
       .sort({ [sortBy as string]: sortOrder })
       .skip((parsedPage - 1) * parsedLimit)
