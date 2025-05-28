@@ -16,10 +16,10 @@ export interface IUser extends Document {
 
 const UserSchema: Schema<IUser> = new Schema({
   company: { type: Schema.Types.ObjectId, ref: "Company", required: false },
+  role: { type: Schema.Types.ObjectId, ref: "Role", required: false },
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: Schema.Types.ObjectId, ref: "Role", required: false },
   status: { type: Boolean, required: false },
   type: {
     type: String,
