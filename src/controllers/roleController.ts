@@ -27,7 +27,7 @@ export const getRoles = async (req: Request, res: Response) => {
       }
       : {};
 
-    query.company != null;
+    query.company = null;
 
     // Fetch locations with sorting and pagination
     const data = await Role.find(query)

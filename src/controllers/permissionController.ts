@@ -14,7 +14,7 @@ export const getAllPermissions = async (req: Request, res: Response) => {
 
 export const getPermissions = async (req: Request, res: Response) => {
   try {
-   const {
+    const {
       page = "1", // Default to page 1 if not provided
       limit = "10", // Default to limit 10 if not provided
       sortBy = "name", // Default sorting field
@@ -27,16 +27,15 @@ export const getPermissions = async (req: Request, res: Response) => {
     const parsedLimit = Math.max(parseInt(limit as string, 10), 1); // Minimum value 1
     const sortOrder = order === "asc" ? 1 : -1; // Convert order to MongoDB format
 
-     const query: any = search
+    const query: any = search
       ? {
-        $or: [
-          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-        ],
-      }
+          $or: [
+            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+          ],
+        }
       : {};
 
-    query.company != null;
-
+    query.company = null;
 
     // Fetch locations with sorting and pagination
     const data = await Permission.find(query)
@@ -103,12 +102,10 @@ export const updatePermission = async (req: Request, res: Response) => {
       res.status(404).json({ message: `${modelTitle} not found.` });
     }
 
-    res
-      .status(200)
-      .json({
-        data: updatedData,
-        message: `${modelTitle} updated successfully.`,
-      });
+    res.status(200).json({
+      data: updatedData,
+      message: `${modelTitle} updated successfully.`,
+    });
   } catch (error) {
     res.status(500).json({ message: `Error creating ${modelTitle}.`, error });
   }
