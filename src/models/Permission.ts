@@ -2,8 +2,8 @@ import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
 // Interface for Designation Document
 export interface IPermission extends Document {
-  name: string;
   company: mongoose.Types.ObjectId;
+  name: string;
   status: boolean;
   created_at: Date;
   updated_at: Date;
@@ -12,19 +12,18 @@ export interface IPermission extends Document {
 // Schema Definition
 const PermissionSchema: Schema<IPermission> = new Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      // unique: true,
-    },
-    status: {
-      type: Boolean,
-      required: true,
-    },
     company: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
       required: false,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: Boolean,
+      required: true,
     },
     created_at: {
       type: Date,
