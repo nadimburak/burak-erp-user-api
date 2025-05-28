@@ -24,7 +24,7 @@ class App {
 
   constructor() {
     this.app = express();
-    this.MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/defaultdb';
+    this.MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/';
     this.isDBConnected = false;
 
     // Initialize Test model schema
