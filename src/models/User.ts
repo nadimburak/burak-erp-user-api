@@ -4,20 +4,22 @@ import bcrypt from "bcrypt";
 export type UserType = "user" | "company_user" | "customer";
 
 export interface IUser extends Document {
+  company: mongoose.Types.ObjectId;
+  role: mongoose.Types.ObjectId;
   name: string;
   email: string;
   password: string;
   status: boolean;
-  role: mongoose.Types.ObjectId;
   type: UserType;
   comparePassword(password: string): Promise<boolean>;
 }
 
 const UserSchema: Schema<IUser> = new Schema({
+  company: { type: Schema.Types.ObjectId, ref: "Company", required: false },
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: Schema.Types.ObjectId, ref: "Role" },
+  role: { type: Schema.Types.ObjectId, ref: "Role", required: false },
   status: { type: Boolean, required: false },
   type: {
     type: String,
