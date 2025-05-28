@@ -2,7 +2,7 @@
   "rest-client.environmentVariables": {
     "sandbox": {
       "baseUrl": "http://localhost:7001/",
-      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODM1NjU4MWMxYTJmODIzZWI0MDVmYmIiLCJpYXQiOjE3NDgzNDM3NTUsImV4cCI6MTc0ODcwMzc1NX0.VBqDoiOW3zp-QODX2BapB1GsjX2-2q0BCzC5ndMjiVw"
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODM2YzE1NTdhMzczODMwZWY0NWJiZTkiLCJpYXQiOjE3NDg0MTkwMTIsImV4cCI6MTc0ODc3OTAxMn0.ikZLhP_j7Kwhf4oi_vwCbWhz6ySuAcwweM1n0YSCpqo"
     },
     "production": {
       "baseUrl": "http://localhost:7001/",
