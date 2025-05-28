@@ -11,11 +11,24 @@ const modelTitle = "User";
 
 export const signIn = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, type } = req.body;
+    if (!email || !password || !type) {
+      return res
+        .status(400)
+        .json({ message: "Email, password, and user type are required." });
+    }
+
     const user = await User.findOne({ email });
+
     if (!user) {
-      res.status(404).json({ message: "User not found." });
-      return;
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Match user type with panel type
+    if (user.type !== type) {
+      return res
+        .status(403)
+        .json({ message: `Access denied for '${type}' panel.` });
     }
 
     const isMatch = await user.comparePassword(password);
