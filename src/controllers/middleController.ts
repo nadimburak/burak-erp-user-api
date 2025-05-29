@@ -59,7 +59,7 @@ export const authorizePermissionHandle = asyncHandler(async (req: AuthRequest, r
       return res.status(403).send({ message: "Forbidden" });
     }
 
-    res.status(200).send({ message: "Authorized!" });
+    res.status(200).send({ message: "Authorized!",hasPermission });
 
   } catch (error) {
     console.error(error)
