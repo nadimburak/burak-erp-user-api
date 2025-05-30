@@ -4,5 +4,6 @@ Accept: application/json
 
 {
     "email": "admin@gmail.com",
-    "password": "Abcd@1234"
+    "password": "Abcd@1234",
+    "type": "user"
 }
