@@ -1,4 +1,6 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
+import Company from "./Company";
+import Permission from "./Permission";
 
 // Interface for Designation Document
 export interface IRole extends Document {
@@ -15,7 +17,7 @@ const RoleSchema: Schema<IRole> = new Schema(
     {
         company: {
             type: Schema.Types.ObjectId,
-            ref: "Company",
+            ref: Company,
             required: false,
         },
         name: {
@@ -26,7 +28,7 @@ const RoleSchema: Schema<IRole> = new Schema(
             type: Boolean,
             required: true,
         },
-        permissions: [{ type: Schema.Types.ObjectId, ref: "Permission" }],
+        permissions: [{ type: Schema.Types.ObjectId, ref: Permission, required: false }],
         created_at: {
             type: Date,
             default: Date.now,
