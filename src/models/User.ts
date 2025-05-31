@@ -1,5 +1,7 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 import bcrypt from "bcrypt";
+import Company from "./Company";
+import Role from "./Role";
 
 export type UserType = "user" | "company_user" | "customer";
 
@@ -15,8 +17,8 @@ export interface IUser extends Document {
 }
 
 const UserSchema: Schema<IUser> = new Schema({
-  company: { type: Schema.Types.ObjectId, ref: "Company", required: false },
-  role: { type: Schema.Types.ObjectId, ref: "Role", required: false },
+  company: { type: Schema.Types.ObjectId, ref: Company, required: false },
+  role: { type: Schema.Types.ObjectId, ref: Role, required: false },
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },

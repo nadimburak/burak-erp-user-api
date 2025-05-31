@@ -18,17 +18,10 @@ export const signIn = asyncHandler(async (req: Request, res: Response) => {
         .json({ message: "Email, password, and user type are required." });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, type });
 
     if (!user) {
       return res.status(404).json({ message: "User not found." });
-    }
-
-    // Match user type with panel type
-    if (user.type !== type) {
-      return res
-        .status(403)
-        .json({ message: `Access denied for '${type}' panel.` });
     }
 
     const isMatch = await user.comparePassword(password);
@@ -82,28 +75,33 @@ export const signOut = asyncHandler(async (req: AuthRequest, res: Response) => {
   }
 });
 
-export const getProfile = asyncHandler(
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const baseQuery = User.findById(req.user._id).select("-password");
 
-      // Conditionally populate company if user is company_user or customer
-      if (["company_user", "customer"].includes(req.user.type)) {
-        baseQuery.populate("company");
-      }
+export const getProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { _id, type } = req.user;
 
-      const user = await baseQuery;
+  // Create the base query
+  const query = User.findById(_id).select("-password");
 
-      if (!user) {
-        return res.status(404).json({ message: "User not found." });
-      }
-
-      res.status(200).json(user);
-    } catch (error) {
-      res.status(500).json({ message: `Error ${modelTitle}.`, error });
-    }
+  // Conditionally populate company
+  if (type === "company_user" || type === "customer") {
+    query.populate("company");
   }
-);
+
+  try {
+    const user = await query.exec();
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    return res.status(500).json({
+      message: `Error fetching user profile.`,
+    });
+  }
+});
 
 
 export const updateProfile = asyncHandler(
