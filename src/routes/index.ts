@@ -9,7 +9,7 @@ import { seedDB } from "../seeder";
 const app = express();
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Hello, TypeScript with Express!");
+  res.send("Hello, TypeScript with Express! User Api is running.");
 });
 
 app.get("/seed", (req: Request, res: Response) => {
