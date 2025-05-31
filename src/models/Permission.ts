@@ -1,4 +1,5 @@
-import mongoose, { Schema, Document, Model, Types } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
+import Company from "./Company";
 
 // Interface for Designation Document
 export interface IPermission extends Document {
@@ -14,7 +15,7 @@ const PermissionSchema: Schema<IPermission> = new Schema(
   {
     company: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Company",
+      ref: Company,
       required: false,
     },
     name: {
