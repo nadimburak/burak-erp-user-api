@@ -85,10 +85,17 @@ export const signOut = asyncHandler(async (req: AuthRequest, res: Response) => {
 export const getProfile = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     try {
-      // Fetch the user's data from the database
-      const user = await User.findById(req.user._id).select("-password"); // Exclude the password
+      const baseQuery = User.findById(req.user._id).select("-password");
+
+      // Conditionally populate company if user is company_user or customer
+      if (["company_user", "customer"].includes(req.user.type)) {
+        baseQuery.populate("company");
+      }
+
+      const user = await baseQuery;
+
       if (!user) {
-        res.status(404).json({ message: "User not found." });
+        return res.status(404).json({ message: "User not found." });
       }
 
       res.status(200).json(user);
@@ -97,6 +104,7 @@ export const getProfile = asyncHandler(
     }
   }
 );
+
 
 export const updateProfile = asyncHandler(
   async (req: AuthRequest, res: Response) => {
