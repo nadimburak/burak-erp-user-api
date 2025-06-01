@@ -11,14 +11,14 @@ const modelTitle = "User";
 
 export const signIn = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { email, password, type } = req.body;
-    if (!email || !password || !type) {
+    const { email, password } = req.body;
+    if (!email || !password) {
       return res
         .status(400)
         .json({ message: "Email, password, and user type are required." });
     }
 
-    const user = await User.findOne({ email, type });
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({ message: "User not found." });
