@@ -11,22 +11,21 @@ const modelTitle = "User";
 
 export const signIn = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email, password, and user type are required." });
+    const { email, password, type } = req.body;
+
+    if (!email || !password || !type) {
+      return res.status(400).json({ message: "Email, password, and user type are required." });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, type });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({ message: `${type} not found.` });
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      res.status(400).json({ message: "Invalid credentials." });
+      return res.status(400).json({ message: "Invalid credentials." });
     }
 
     const accessToken = await generateToken(user?._id as string);
@@ -36,6 +35,7 @@ export const signIn = asyncHandler(async (req: Request, res: Response) => {
     res.status(500).json({ message: `Error ${modelTitle}.`, error });
   }
 });
+
 
 export const signUp = asyncHandler(async (req: Request, res: Response) => {
   try {
