@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-import Company from "./Company";
+import Company from "./company/Company";
 
 // Interface for Designation Document
 export interface IPermission extends Document {

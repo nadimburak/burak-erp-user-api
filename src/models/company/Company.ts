@@ -2,11 +2,11 @@ import mongoose, { Document, Model, Schema } from "mongoose";
 
 // Interface for Designation Document
 export interface ICompany extends Document {
-  company_type: mongoose.Types.ObjectId;
-  industries: mongoose.Types.ObjectId;
-  country_location: mongoose.Types.ObjectId;
-  state_location: mongoose.Types.ObjectId;
-  city_location: mongoose.Types.ObjectId;
+  company_type?: mongoose.Types.ObjectId;
+  industries?: mongoose.Types.ObjectId;
+  country_location?: mongoose.Types.ObjectId;
+  state_location?: mongoose.Types.ObjectId;
+  city_location?: mongoose.Types.ObjectId;
   name: string;
   prefix: string;
   contact_name: string;

@@ -4,6 +4,7 @@ import nodemailer from "nodemailer";
 import User, { IUser } from "../models/User";
 import { generateToken, verifyToken } from "../utils/jwt";
 import { AuthRequest, tokenBlacklist } from "../interfaces/Auth";
+import { populate } from "dotenv";
 
 const asyncHandler = require("express-async-handler");
 
@@ -14,7 +15,9 @@ export const signIn = asyncHandler(async (req: Request, res: Response) => {
     const { email, password, type } = req.body;
 
     if (!email || !password || !type) {
-      return res.status(400).json({ message: "Email, password, and user type are required." });
+      return res
+        .status(400)
+        .json({ message: "Email, password, and user type are required." });
     }
 
     const user = await User.findOne({ email, type });
@@ -35,7 +38,6 @@ export const signIn = asyncHandler(async (req: Request, res: Response) => {
     res.status(500).json({ message: `Error ${modelTitle}.`, error });
   }
 });
-
 
 export const signUp = asyncHandler(async (req: Request, res: Response) => {
   try {
@@ -75,41 +77,56 @@ export const signOut = asyncHandler(async (req: AuthRequest, res: Response) => {
   }
 });
 
+export const getProfile = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const { _id, type } = req.user;
 
-export const getProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { _id, type } = req.user;
+    // Create the base query
+    const query = User.findById(_id)
+      .select("-password")
+      .populate("company_branch", "name") // 👈 Populate company_branch name only;
+      .populate("gender", "name")
+      .populate("language", "name")
+      .populate(
+        type === "company_user" || type === "customer" ? "company" : ""
+      );
 
-  // Create the base query
-  const query = User.findById(_id).select("-password");
+    // Conditionally populate company
+    // if (type === "company_user" || type === "customer") {
+    //   query.populate("company");
+    // }
 
-  // Conditionally populate company
-  if (type === "company_user" || type === "customer") {
-    query.populate("company");
-  }
+    try {
+      const user = await query.exec();
 
-  try {
-    const user = await query.exec();
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
+      }
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(200).json(user);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      return res.status(500).json({
+        message: `Error fetching user profile.`,
+      });
     }
-
-    return res.status(200).json(user);
-  } catch (error) {
-    console.error("Error fetching user profile:", error);
-    return res.status(500).json({
-      message: `Error fetching user profile.`,
-    });
   }
-});
-
+);
 
 export const updateProfile = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     try {
-      const { name, mobile } = req.body;
+      const {
+        name,
+        mobile,
+        company_branch,
+        gender,
+        language,
+        mother_name,
+        father_name,
+      } = req.body;
 
-      // Find the company by ID
+      // Find the company by IDcompany_branch
       const users = await User.findById(req.user._id);
       if (!users) {
         res.status(404).json({ message: "User not found." });
@@ -120,7 +137,14 @@ export const updateProfile = asyncHandler(
         req.user._id,
         {
           ...(name && { name }),
+          ...(mother_name && { mother_name }),
+          ...(father_name && { father_name }),
           ...(mobile && { mobile }),
+          ...(company_branch && { company_branch }),
+          ...(gender && { gender }),
+          ...(language &&
+            Array.isArray(language) &&
+            language.length > 0 && { language }),
         },
         { new: true } // Return the updated document
       );
