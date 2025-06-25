@@ -16,10 +16,13 @@ export interface IUser extends Document {
   mother_name?: string;
   status: boolean;
   type: UserType;
+  marital_status?: mongoose.Types.ObjectId;
+  employment_status?: mongoose.Types.ObjectId;
   gender?: mongoose.Types.ObjectId;
   company_branch?: mongoose.Types.ObjectId;
   language?: mongoose.Types.ObjectId[];
   comparePassword(password: string): Promise<boolean>;
+  toProfileJSON(options?: { includeLanguage?: boolean }): any;
 }
 
 const UserSchema: Schema<IUser> = new Schema({
@@ -32,6 +35,16 @@ const UserSchema: Schema<IUser> = new Schema({
   father_name: { type: String, required: false },
   mother_name: { type: String, required: false },
   status: { type: Boolean, required: false },
+  marital_status: {
+    type: Schema.Types.ObjectId,
+    ref: "MaritalStatus",
+    required: false,
+  },
+  employment_status: {
+    type: Schema.Types.ObjectId,
+    ref: "EmploymentStatus",
+    required: false,
+  },
   gender: {
     type: Schema.Types.ObjectId,
     ref: "Gender",
@@ -70,18 +83,17 @@ UserSchema.methods.comparePassword = async function (
   return bcrypt.compare(password, this.password);
 };
 
-// ✅ Smart field hiding in JSON output
-UserSchema.set("toJSON", {
-  transform: function (doc, ret, options) {
-    delete ret.password; // Always hide password
+// ✅ Custom dynamic JSON response
+UserSchema.methods.toProfileJSON = function (options?: { includeLanguage?: boolean }) {
+  const obj = this.toObject();
+  delete obj.password;
 
-    // Hide fields if they are null/undefined/empty
-    if (!ret.language || ret.language.length === 0) delete ret.language;
-    // if (!ret.role) delete ret.role;
+  if (!options?.includeLanguage || !obj.language || obj.language.length === 0) {
+    delete obj.language;
+  }
 
-    return ret;
-  },
-});
+  return obj;
+};
 
 const User: Model<IUser> = mongoose.model<IUser>("User", UserSchema);
 export default User;
