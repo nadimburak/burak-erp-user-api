@@ -1,10 +1,9 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import nodemailer from "nodemailer";
+import { AuthRequest, tokenBlacklist } from "../interfaces/Auth";
 import User, { IUser } from "../models/User";
 import { generateToken, verifyToken } from "../utils/jwt";
-import { AuthRequest, tokenBlacklist } from "../interfaces/Auth";
-import { populate } from "dotenv";
 
 const asyncHandler = require("express-async-handler");
 
@@ -20,7 +19,7 @@ export const signIn = asyncHandler(async (req: Request, res: Response) => {
         .json({ message: "Email, password, and user type are required." });
     }
 
-    const user = await User.findOne({ email, type });
+    const user = await User.findOne({ email, type }).select("+password");
 
     if (!user) {
       return res.status(404).json({ message: `${type} not found.` });
@@ -87,14 +86,11 @@ export const getProfile = asyncHandler(
       .populate("company_branch", "name") // 👈 Populate company_branch name only;
       .populate("gender", "name")
       .populate("language", "name")
+      .populate("employment_status", "name")
+      .populate("marital_status", "name")
       .populate(
         type === "company_user" || type === "customer" ? "company" : ""
       );
-
-    // Conditionally populate company
-    // if (type === "company_user" || type === "customer") {
-    //   query.populate("company");
-    // }
 
     try {
       const user = await query.exec();
@@ -124,30 +120,60 @@ export const updateProfile = asyncHandler(
         language,
         mother_name,
         father_name,
+        employment_status,
+        marital_status,
+        password,
+        new_password,
+        confirm_password,
       } = req.body;
 
-      // Find the company by IDcompany_branch
-      const users = await User.findById(req.user._id);
-      if (!users) {
-        res.status(404).json({ message: "User not found." });
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
       }
 
-      // Update fields with the new data (if provided)
-      const updatedProfile = await User.findByIdAndUpdate(
-        req.user._id,
-        {
-          ...(name && { name }),
-          ...(mother_name && { mother_name }),
-          ...(father_name && { father_name }),
-          ...(mobile && { mobile }),
-          ...(company_branch && { company_branch }),
-          ...(gender && { gender }),
-          ...(language &&
-            Array.isArray(language) &&
-            language.length > 0 && { language }),
-        },
-        { new: true } // Return the updated document
-      );
+      // ✅ Handle password change flow
+      if (password || new_password || confirm_password) {
+        // All 3 fields are required
+        if (!password || !new_password || !confirm_password) {
+          return res
+            .status(400)
+            .json({ message: "All password fields are required." });
+        }
+
+        // Match current password
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
+          return res
+            .status(400)
+            .json({ message: "Current password is incorrect." });
+        }
+
+        // Match new and confirm password
+        if (new_password !== confirm_password) {
+          return res
+            .status(400)
+            .json({ message: "New and confirm password do not match." });
+        }
+
+        // Update password
+        // user.password = await bcrypt.hash(new_password, 10);
+        user.password = new_password;
+
+      }
+
+      // ✅ Update other fields if provided
+      if (name) user.name = name;
+      if (mobile) user.mobile = mobile;
+      if (company_branch) user.company_branch = company_branch;
+      if (gender) user.gender = gender;
+      if (language && Array.isArray(language)) user.language = language;
+      if (mother_name) user.mother_name = mother_name;
+      if (father_name) user.father_name = father_name;
+      if (employment_status) user.employment_status = employment_status;
+      if (marital_status) user.marital_status = marital_status;
+
+      const updatedProfile = await user.save();
 
       res.status(200).json({
         message: "Profile updated successfully.",

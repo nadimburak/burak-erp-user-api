@@ -3,6 +3,8 @@ import { seedDB } from "../seeder";
 import authRoutes from "./auth";
 import genderRoutes from "./catalog/gender";
 import languageRoutes from "./catalog/language";
+import EmploymentStatusRoutes from "./catalog/employmentStatus";
+import MaritalStatusRoutes from "./catalog/maritalStatus";
 import companyBranchRoutes from "./company/companyBranch";
 import middlewareRoutes from "./middleware";
 import permissionRoutes from "./permissions";
@@ -29,6 +31,11 @@ app.use("/auth", authRoutes);
 app.use("/middleware", middlewareRoutes);
 app.use("/user", [permissionRoutes, roleRoutes, userRoutes]);
 app.use("/company", [companyBranchRoutes]);
-app.use("/catalog", [genderRoutes, languageRoutes]);
+app.use("/catalog", [
+  genderRoutes,
+  languageRoutes,
+  EmploymentStatusRoutes,
+  MaritalStatusRoutes,
+]);
 
 export default app;
