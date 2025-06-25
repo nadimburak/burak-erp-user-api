@@ -9,10 +9,14 @@ Authorization: Bearer {{accessToken}}
     "company_branch": "685a6fe79c6b5967d228ca63",
     "gender": "685a5ad5b638178439dab641",
     "password": "Abcd@1234",
+    "passport":"A123456789",
     "mother_name": "Mother",
     "father_name": "Father",
     "language": [
         "685a5ad5b638178439dab675",
         "685a5ad5b638178439dab673"
-    ]
+    ],
+    "password": "Abcd@1234",
+    "new_password": "Abcd@1234",
+    "confirm_password":"Abcd@1234"
 }
