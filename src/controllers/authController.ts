@@ -85,6 +85,7 @@ export const getProfile = asyncHandler(
       .select("-password")
       .populate("company_branch", "name") // 👈 Populate company_branch name only;
       .populate("gender", "name")
+      .populate("role", "name")
       .populate("language", "name")
       .populate("employment_status", "name")
       .populate("marital_status", "name")
@@ -125,6 +126,16 @@ export const updateProfile = asyncHandler(
         password,
         new_password,
         confirm_password,
+        passport_number,
+        spouse_name,
+        dob,
+        ethnicity,
+        sexuality,
+        driver,
+        pets,
+        emergency_contact_number,
+        legal_guardians_details,
+        dependents,
       } = req.body;
 
       const user = await User.findById(req.user._id);
@@ -159,12 +170,23 @@ export const updateProfile = asyncHandler(
         // Update password
         // user.password = await bcrypt.hash(new_password, 10);
         user.password = new_password;
-
       }
 
       // ✅ Update other fields if provided
       if (name) user.name = name;
       if (mobile) user.mobile = mobile;
+      if (passport_number) user.passport_number = passport_number;
+      if (spouse_name) user.spouse_name = spouse_name;
+      if (pets) user.pets = pets;
+      if (dependents) user.dependents = dependents;
+      if (ethnicity) user.ethnicity = ethnicity;
+      if (sexuality) user.sexuality = sexuality;
+      if (legal_guardians_details)
+        user.legal_guardians_details = legal_guardians_details;
+      if (driver) user.driver = driver;
+      if (emergency_contact_number)
+        user.emergency_contact_number = emergency_contact_number;
+      if (dob) user.dob = dob;
       if (company_branch) user.company_branch = company_branch;
       if (gender) user.gender = gender;
       if (language && Array.isArray(language)) user.language = language;
