@@ -1,5 +1,5 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
 import bcrypt from "bcrypt";
+import mongoose, { Document, Model, Schema } from "mongoose";
 import Company from "./company/Company";
 import Role from "./Role";
 
@@ -10,12 +10,22 @@ export interface IUser extends Document {
   role: mongoose.Types.ObjectId;
   name: string;
   mobile?: number;
+  dependents?: number;
+  emergency_contact_number?: number;
   email: string;
   password: string;
+  passport_number?: string;
+  dob: Date;
+  spouse_name?: string;
   father_name?: string;
   mother_name?: string;
   status: boolean;
   type: UserType;
+  legal_guardians_details?: string;
+  ethnicity?: string;
+  sexuality?: string;
+  driver?: string;
+  pets?: string;
   marital_status?: mongoose.Types.ObjectId;
   employment_status?: mongoose.Types.ObjectId;
   gender?: mongoose.Types.ObjectId;
@@ -32,9 +42,42 @@ const UserSchema: Schema<IUser> = new Schema({
   email: { type: String, required: true, unique: true },
   mobile: { type: Number, required: false },
   password: { type: String, required: true },
+  passport_number: { type: String, required: false },
+  spouse_name: { type: String, required: false },
   father_name: { type: String, required: false },
   mother_name: { type: String, required: false },
-  status: { type: Boolean, required: false },
+  dob: {
+    type: Date,
+    required: false,
+  },
+  ethnicity: {
+    type: String,
+    required: false,
+  },
+  sexuality: {
+    type: String,
+    required: false,
+  },
+  driver: {
+    type: String,
+    required: false,
+  },
+  pets: {
+    type: String,
+    required: false,
+  },
+  emergency_contact_number: {
+    type: Number,
+    required: false,
+  },
+  legal_guardians_details: {
+    type: String,
+    required: false,
+  },
+  dependents: {
+    type: Number,
+    required: false,
+  },
   marital_status: {
     type: Schema.Types.ObjectId,
     ref: "MaritalStatus",
@@ -67,6 +110,7 @@ const UserSchema: Schema<IUser> = new Schema({
       required: false,
     },
   ],
+  status: { type: Boolean, required: false },
 });
 
 // 🔒 Hash password before saving
@@ -84,7 +128,9 @@ UserSchema.methods.comparePassword = async function (
 };
 
 // ✅ Custom dynamic JSON response
-UserSchema.methods.toProfileJSON = function (options?: { includeLanguage?: boolean }) {
+UserSchema.methods.toProfileJSON = function (options?: {
+  includeLanguage?: boolean;
+}) {
   const obj = this.toObject();
   delete obj.password;
 
