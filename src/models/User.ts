@@ -26,6 +26,7 @@ export interface IUser extends Document {
   sexuality?: string;
   driver?: string;
   pets?: string;
+  designation?: mongoose.Types.ObjectId;
   marital_status?: mongoose.Types.ObjectId;
   employment_status?: mongoose.Types.ObjectId;
   gender?: mongoose.Types.ObjectId;
@@ -76,6 +77,11 @@ const UserSchema: Schema<IUser> = new Schema({
   },
   dependents: {
     type: Number,
+    required: false,
+  },
+  designation: {
+    type: Schema.Types.ObjectId,
+    ref: "Designation",
     required: false,
   },
   marital_status: {
