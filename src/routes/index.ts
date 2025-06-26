@@ -1,9 +1,11 @@
 import express, { Request, Response } from "express";
 import { seedDB } from "../seeder";
 import authRoutes from "./auth";
-import genderRoutes from "./catalog/gender";
-import languageRoutes from "./catalog/language";
+import designationRoutes from "./catalog/designations";
 import EmploymentStatusRoutes from "./catalog/employmentStatus";
+import genderRoutes from "./catalog/gender";
+import industryRoutes from "./catalog/industry";
+import languageRoutes from "./catalog/language";
 import MaritalStatusRoutes from "./catalog/maritalStatus";
 import companyBranchRoutes from "./company/companyBranch";
 import middlewareRoutes from "./middleware";
@@ -36,6 +38,8 @@ app.use("/catalog", [
   languageRoutes,
   EmploymentStatusRoutes,
   MaritalStatusRoutes,
+  designationRoutes,
+  industryRoutes,
 ]);
 
 export default app;

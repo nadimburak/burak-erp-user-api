@@ -89,6 +89,7 @@ export const getProfile = asyncHandler(
       .populate("language", "name")
       .populate("employment_status", "name")
       .populate("marital_status", "name")
+      .populate("designation", "name")
       .populate(
         type === "company_user" || type === "customer" ? "company" : ""
       );
@@ -135,6 +136,7 @@ export const updateProfile = asyncHandler(
         pets,
         emergency_contact_number,
         legal_guardians_details,
+        designation,
         dependents,
       } = req.body;
 
@@ -194,6 +196,7 @@ export const updateProfile = asyncHandler(
       if (father_name) user.father_name = father_name;
       if (employment_status) user.employment_status = employment_status;
       if (marital_status) user.marital_status = marital_status;
+      if (designation) user.designation = designation;
 
       const updatedProfile = await user.save();
 
