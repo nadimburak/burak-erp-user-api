@@ -28,6 +28,11 @@ export interface IUser extends Document {
   pets?: string;
   designation?: mongoose.Types.ObjectId;
   marital_status?: mongoose.Types.ObjectId;
+  country_location?: mongoose.Types.ObjectId;
+  state_location?: mongoose.Types.ObjectId;
+  city_location?: mongoose.Types.ObjectId;
+  address?: string;
+  zip_code?: number;
   employment_status?: mongoose.Types.ObjectId;
   gender?: mongoose.Types.ObjectId;
   company_branch?: mongoose.Types.ObjectId;
@@ -79,6 +84,14 @@ const UserSchema: Schema<IUser> = new Schema({
     type: Number,
     required: false,
   },
+  zip_code: {
+    type: Number,
+    required: false,
+  },
+  address: {
+    type: String,
+    required: false,
+  },
   designation: {
     type: Schema.Types.ObjectId,
     ref: "Designation",
@@ -87,6 +100,21 @@ const UserSchema: Schema<IUser> = new Schema({
   marital_status: {
     type: Schema.Types.ObjectId,
     ref: "MaritalStatus",
+    required: false,
+  },
+  country_location: {
+    type: Schema.Types.ObjectId,
+    ref: "CountryLocation",
+    required: false,
+  },
+  state_location: {
+    type: Schema.Types.ObjectId,
+    ref: "StateLocation",
+    required: false,
+  },
+  city_location: {
+    type: Schema.Types.ObjectId,
+    ref: "CityLocation",
     required: false,
   },
   employment_status: {
