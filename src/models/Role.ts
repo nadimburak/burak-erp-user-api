@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-import Company from "./Company";
+import Company from "./company/Company";
 import Permission from "./Permission";
 
 // Interface for Designation Document
