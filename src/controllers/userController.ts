@@ -24,11 +24,11 @@ export const getUsers = async (req: Request, res: Response) => {
 
     const query: any = search
       ? {
-          $or: [
-            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-            { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
-          ],
-        }
+        $or: [
+          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+          { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
+        ],
+      }
       : {};
 
     query.type = "user";
@@ -75,7 +75,7 @@ export const getUser = async (req: Request, res: Response) => {
 
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const { role, name, email, password, status } = req.body;
+    const { role, name, email, password, status, image } = req.body;
 
     // Check if the user already exists
     const existingData = await User.findOne({ email });
@@ -87,6 +87,7 @@ export const createUser = async (req: Request, res: Response) => {
       role,
       name,
       email,
+      image,
       password,
       status,
       type: "user",
@@ -104,11 +105,12 @@ export const createUser = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, email, password, role, status } = req.body;
+    const { name, email, password, role, status, image } = req.body;
 
     const updatedData: Partial<IUser> = {
       name,
       email,
+      image,
       role,
       status,
       type: "user",
