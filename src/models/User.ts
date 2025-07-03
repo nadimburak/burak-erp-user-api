@@ -10,6 +10,7 @@ export interface IUser extends Document {
   role: mongoose.Types.ObjectId;
   name: string;
   mobile?: number;
+  image?: string;
   dependents?: number;
   emergency_contact_number?: number;
   email: string;
@@ -47,6 +48,7 @@ const UserSchema: Schema<IUser> = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   mobile: { type: Number, required: false },
+  image: { type: String, required: false },
   password: { type: String, required: true },
   passport_number: { type: String, required: false },
   spouse_name: { type: String, required: false },
