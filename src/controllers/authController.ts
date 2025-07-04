@@ -145,6 +145,7 @@ export const updateProfile = asyncHandler(
         state_location,
         city_location,
         zip_code,
+        image,
         address,
       } = req.body;
 
@@ -185,6 +186,7 @@ export const updateProfile = asyncHandler(
       // ✅ Update other fields if provided
       if (name) user.name = name;
       if (mobile) user.mobile = mobile;
+      if (image) user.image = image;
       if (passport_number) user.passport_number = passport_number;
       if (spouse_name) user.spouse_name = spouse_name;
       if (pets) user.pets = pets;

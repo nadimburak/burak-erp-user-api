@@ -18,5 +18,6 @@ Authorization: Bearer {{accessToken}}
     ],
     "password": "Abcd@1234",
     "new_password": "Abcd@1234",
-    "confirm_password":"Abcd@1234"
+    "confirm_password":"Abcd@1234",
+    "image":"b613af9e0ae44fdc1e1c.jpg"
 }
