@@ -90,9 +90,9 @@ export const getProfile = asyncHandler(
       .populate("employment_status", "name")
       .populate("marital_status", "name")
       .populate("designation", "name")
-      .populate("country_location", "name")
-      .populate("state_location", "name")
-      .populate("city_location", "name")
+      .populate("country", "name")
+      .populate("state", "name")
+      .populate("city", "name")
       .populate(
         type === "company_user" || type === "customer" ? "company" : ""
       );
@@ -141,9 +141,9 @@ export const updateProfile = asyncHandler(
         legal_guardians_details,
         designation,
         dependents,
-        country_location,
-        state_location,
-        city_location,
+        country,
+        state,
+        city,
         zip_code,
         image,
         address,
@@ -207,9 +207,9 @@ export const updateProfile = asyncHandler(
       if (mother_name) user.mother_name = mother_name;
       if (father_name) user.father_name = father_name;
       if (employment_status) user.employment_status = employment_status;
-      if (country_location) user.country_location = country_location;
-      if (state_location) user.state_location = state_location;
-      if (city_location) user.city_location = city_location;
+      if (country) user.country = country;
+      if (state) user.state = state;
+      if (city) user.city = city;
       if (marital_status) user.marital_status = marital_status;
       if (designation) user.designation = designation;
 
