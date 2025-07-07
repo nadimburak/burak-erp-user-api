@@ -2,8 +2,8 @@ import mongoose, { Document, Model, Schema } from "mongoose";
 
 // Interface for CityLocation Document
 export interface ICityLocation extends Document {
-  country_location: mongoose.Types.ObjectId; // Reference to CountryLocation model
-  state_location: mongoose.Types.ObjectId; // Reference to StateLocation model
+  country: mongoose.Types.ObjectId; // Reference to CountryLocation model
+  state: mongoose.Types.ObjectId; // Reference to StateLocation model
   name: string; // Surgen, Doctor, Nurse
   description: string;
   status: boolean; // true or false
@@ -14,12 +14,12 @@ export interface ICityLocation extends Document {
 // Schema Definition
 const CityLocationSchema: Schema<ICityLocation> = new Schema(
   {
-    country_location: {
+    country: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "CountryLocation",
       required: false,
     },
-    state_location: {
+    state: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "StateLocation",
       required: false,

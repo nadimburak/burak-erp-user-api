@@ -1,5 +1,13 @@
 import express from "express";
-import { forgotPassword, getProfile, resetPassword, signIn, signOut, signUp, updateProfile } from "../controllers/authController";
+import {
+  forgotPassword,
+  getProfile,
+  resetPassword,
+  signIn,
+  signOut,
+  signUp,
+  updateProfile,
+} from "../controllers/authController";
 import { authenticate } from "../middlewares/auth.middleware";
 
 const router = express.Router();

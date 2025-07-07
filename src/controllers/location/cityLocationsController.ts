@@ -14,8 +14,8 @@ export const getAllCityLocation = asyncHandler(
         sortBy = "name", // Default sorting field
         order = "asc", // Default order
         search = "", // Default search string
-        country_location = "", // Default state location
-        state_location = "",
+        country = "", // Default state location
+        state = "",
       } = req.query;
 
       // Parse and validate page and limit
@@ -31,18 +31,18 @@ export const getAllCityLocation = asyncHandler(
           }
         : {};
 
-      if (state_location) {
-        query.state_location = state_location;
+      if (state) {
+        query.state = state;
       }
 
-      if (country_location) {
-        query.country_location = country_location;
+      if (country) {
+        query.country = country;
       }
 
       // Fetch data with sorting and pagination
       const data = await CityLocation.find(query)
-        .populate("country_location", "name")
-        .populate("state_location", "name")
+        .populate("country", "name")
+        .populate("state", "name")
         .sort({ [sortBy as string]: sortOrder })
         .skip((parsedPage - 1) * parsedLimit)
         .limit(parsedLimit);
