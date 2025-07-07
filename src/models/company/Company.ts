@@ -4,9 +4,9 @@ import mongoose, { Document, Model, Schema } from "mongoose";
 export interface ICompany extends Document {
   company_type?: mongoose.Types.ObjectId;
   industries?: mongoose.Types.ObjectId;
-  country_location?: mongoose.Types.ObjectId;
-  state_location?: mongoose.Types.ObjectId;
-  city_location?: mongoose.Types.ObjectId;
+  country?: mongoose.Types.ObjectId;
+  state?: mongoose.Types.ObjectId;
+  city?: mongoose.Types.ObjectId;
   name: string;
   prefix: string;
   contact_name: string;
@@ -33,17 +33,17 @@ const CompanySchema: Schema<ICompany> = new Schema(
       ref: "Industry",
       required: false,
     }],
-    country_location: {
+    country: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "CountryLocation",
       required: false,
     },
-    state_location: {
+    state: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "StateLocation",
       required: false,
     },
-    city_location: {
+    city: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "CityLocation",
       required: false,
