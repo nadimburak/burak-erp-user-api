@@ -4,6 +4,7 @@ import nodemailer from "nodemailer";
 import { AuthRequest, tokenBlacklist } from "../interfaces/Auth";
 import User, { IUser } from "../models/User";
 import { generateToken, verifyToken } from "../utils/jwt";
+import Company from "../models/company/Company";
 
 const asyncHandler = require("express-async-handler");
 
@@ -104,7 +105,15 @@ export const getProfile = asyncHandler(
         return res.status(404).json({ message: "User not found." });
       }
 
-      return res.status(200).json(user);
+      const userCount = await User.countDocuments({});
+      const companyCount = await Company.countDocuments({});
+    
+
+      res.status(200).json({
+        ...user.toObject(),
+        no_of_users: userCount, // ⬅️ Ye field tumhare frontend me milega
+        no_of_company: companyCount, // ⬅️ Ye field tumhare frontend me milega
+      });
     } catch (error) {
       console.error("Error fetching user profile:", error);
       return res.status(500).json({
