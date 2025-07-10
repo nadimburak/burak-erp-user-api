@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
-// Interface for CountryLocation Document
-export interface ICountryLocation extends Document {
+// Interface for Country Document
+export interface ICountry extends Document {
     name: string; // Surgen, Doctor, Nurse
     description: string;
     status: boolean; // true or false
@@ -10,7 +10,7 @@ export interface ICountryLocation extends Document {
 }
 
 // Schema Definition
-const CountryLocationSchema: Schema<ICountryLocation> = new Schema(
+const CountrySchema: Schema<ICountry> = new Schema(
     {
         name: {
             type: String,
@@ -39,9 +39,9 @@ const CountryLocationSchema: Schema<ICountryLocation> = new Schema(
 );
 
 // Model Definition
-const CountryLocation: Model<ICountryLocation> = mongoose.model<ICountryLocation>(
-    "CountryLocation",
-    CountryLocationSchema
+const Country: Model<ICountry> = mongoose.model<ICountry>(
+    "Country",
+    CountrySchema
 );
 
-export default CountryLocation;
+export default Country;
