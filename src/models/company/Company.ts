@@ -35,17 +35,17 @@ const CompanySchema: Schema<ICompany> = new Schema(
     }],
     country: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "CountryLocation",
+      ref: "Country",
       required: false,
     },
     state: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "StateLocation",
+      ref: "State",
       required: false,
     },
     city: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "CityLocation",
+      ref: "City",
       required: false,
     },
     name: {

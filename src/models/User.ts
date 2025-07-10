@@ -106,17 +106,17 @@ const UserSchema: Schema<IUser> = new Schema({
   },
   country: {
     type: Schema.Types.ObjectId,
-    ref: "CountryLocation",
+    ref: "Country",
     required: false,
   },
   state: {
     type: Schema.Types.ObjectId,
-    ref: "StateLocation",
+    ref: "State",
     required: false,
   },
   city: {
     type: Schema.Types.ObjectId,
-    ref: "CityLocation",
+    ref: "City",
     required: false,
   },
   employment_status: {

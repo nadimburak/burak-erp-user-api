@@ -1,8 +1,8 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
-// Interface for StateLocation Document
-export interface IStateLocation extends Document {
-  country: mongoose.Types.ObjectId; // Reference to CountryLocation model
+// Interface for State Document
+export interface IState extends Document {
+  country: mongoose.Types.ObjectId; // Reference to Country model
   name: string; // Surgen, Doctor, Nurse
   description: string;
   status: boolean; // true or false
@@ -11,11 +11,11 @@ export interface IStateLocation extends Document {
 }
 
 // Schema Definition
-const StateLocationSchema: Schema<IStateLocation> = new Schema(
+const StateSchema: Schema<IState> = new Schema(
   {
     country: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "CountryLocation",
+      ref: "Country",
       required: true,
     },
     name: {
@@ -45,9 +45,9 @@ const StateLocationSchema: Schema<IStateLocation> = new Schema(
 );
 
 // Model Definition
-const StateLocation: Model<IStateLocation> = mongoose.model<IStateLocation>(
-  "StateLocation",
-  StateLocationSchema
+const State: Model<IState> = mongoose.model<IState>(
+  "State",
+  StateSchema
 );
 
-export default StateLocation;
+export default State;

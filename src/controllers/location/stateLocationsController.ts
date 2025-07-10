@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import StateLocation from "../../models/location/StateLocation";
+import State from "../../models/location/State";
 
 const asyncHandler = require("express-async-handler");
 
-const modelTitle = "StateLocation";
+const modelTitle = "State";
 
-export const getAllStateLocation = asyncHandler(
+export const getAllState = asyncHandler(
   async (req: Request, res: Response) => {
     try {
       const {
@@ -35,14 +35,14 @@ export const getAllStateLocation = asyncHandler(
       }
 
       // Fetch data with sorting and pagination
-      const data = await StateLocation.find(query)
+      const data = await State.find(query)
         .populate("country", "name")
         .sort({ [sortBy as string]: sortOrder })
         .skip((parsedPage - 1) * parsedLimit)
         .limit(parsedLimit);
 
       // Get the total number of documents
-      const totalData = await StateLocation.countDocuments(query);
+      const totalData = await State.countDocuments(query);
 
       // Send the response
       res.status(200).json({

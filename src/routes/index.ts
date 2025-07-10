@@ -16,9 +16,9 @@ import permissionRoutes from "./permissions";
 import roleRoutes from "./roles";
 import userRoutes from "./users";
 
-import cityLocationRoutes from "./location/cityLocation";
-import countryLocationRoutes from "./location/countryLocation";
-import stateLocationRoutes from "./location/stateLocation";
+import CityRoutes from "./location/cities";
+import CountryRoutes from "./location/countries";
+import StateRoutes from "./location/states";
 
 const app = express();
 
@@ -37,9 +37,13 @@ app.get("/seed", (req: Request, res: Response) => {
 });
 
 app.use("/auth", authRoutes);
+
 app.use("/middleware", middlewareRoutes);
+
 app.use("/user", [permissionRoutes, roleRoutes, userRoutes]);
+
 app.use("/company", [companyBranchRoutes]);
+
 app.use("/catalog", [
   genderRoutes,
   languageRoutes,
@@ -48,10 +52,7 @@ app.use("/catalog", [
   designationRoutes,
   industryRoutes,
 ]);
-app.use("/location", [
-  countryLocationRoutes,
-  stateLocationRoutes,
-  cityLocationRoutes,
-]);
+
+app.use("/location", [CountryRoutes, StateRoutes, CityRoutes]);
 
 export default app;

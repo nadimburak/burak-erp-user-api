@@ -1,10 +1,10 @@
 import express from "express";
 import {
-    getAllStateLocation
+    getAllState
 } from "../../controllers/location/stateLocationsController";
 
 const router = express.Router();
 
-router.get("/state-location", getAllStateLocation);
+router.get("/states", getAllState);
 
 export default router;
