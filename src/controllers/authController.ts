@@ -2,9 +2,9 @@ import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import nodemailer from "nodemailer";
 import { AuthRequest, tokenBlacklist } from "../interfaces/Auth";
+import Company from "../models/company/Company";
 import User, { IUser } from "../models/User";
 import { generateToken, verifyToken } from "../utils/jwt";
-import Company from "../models/company/Company";
 
 const asyncHandler = require("express-async-handler");
 
@@ -41,13 +41,13 @@ export const signIn = asyncHandler(async (req: Request, res: Response) => {
 
 export const signUp = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, type } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       res.status(400).json({ message: "User already exists." });
     }
 
-    const user: IUser = new User({ name, email, password });
+    const user: IUser = new User({ name, email, password, type });
     await user.save();
 
     const accessToken = await generateToken(user?._id as string);
@@ -107,7 +107,6 @@ export const getProfile = asyncHandler(
 
       const userCount = await User.countDocuments({});
       const companyCount = await Company.countDocuments({});
-    
 
       res.status(200).json({
         ...user.toObject(),
