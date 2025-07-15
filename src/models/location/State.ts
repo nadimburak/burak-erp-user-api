@@ -3,7 +3,11 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 // Interface for State Document
 export interface IState extends Document {
   country: mongoose.Types.ObjectId; // Reference to Country model
-  name: string; // Surgen, Doctor, Nurse
+  name: string;
+  state_code: string;
+  type: string;
+  latitude: string;
+  longitude: string;
   description: string;
   status: boolean; // true or false
   created_at: Date;
@@ -22,7 +26,23 @@ const StateSchema: Schema<IState> = new Schema(
       type: String,
       required: true,
     },
+    state_code: {
+      type: String,
+      required: false,
+    },
+    type: {
+      type: String,
+      required: false,
+    },
     description: {
+      type: String,
+      required: false,
+    },
+    latitude: {
+      type: String,
+      required: false,
+    },
+    longitude: {
       type: String,
       required: false,
     },

@@ -16,9 +16,6 @@ import permissionRoutes from "./permissions";
 import roleRoutes from "./roles";
 import userRoutes from "./users";
 
-import CityRoutes from "./location/cities";
-import CountryRoutes from "./location/countries";
-import StateRoutes from "./location/states";
 
 const app = express();
 
@@ -52,7 +49,5 @@ app.use("/catalog", [
   designationRoutes,
   industryRoutes,
 ]);
-
-app.use("/location", [CountryRoutes, StateRoutes, CityRoutes]);
 
 export default app;

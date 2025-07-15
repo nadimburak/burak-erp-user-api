@@ -4,8 +4,10 @@ import mongoose, { Document, Model, Schema } from "mongoose";
 export interface ICity extends Document {
   country: mongoose.Types.ObjectId; // Reference to Country model
   state: mongoose.Types.ObjectId; // Reference to State model
-  name: string; // Surgen, Doctor, Nurse
+  name: string;
   description: string;
+  latitude: string;
+  longitude: string;
   status: boolean; // true or false
   created_at: Date;
   updated_at: Date;
@@ -29,6 +31,14 @@ const CitySchema: Schema<ICity> = new Schema(
       required: true,
     },
     description: {
+      type: String,
+      required: false,
+    },
+    latitude: {
+      type: String,
+      required: false,
+    },
+    longitude: {
       type: String,
       required: false,
     },
