@@ -2,6 +2,9 @@ import bcrypt from "bcrypt";
 import mongoose, { Document, Model, Schema } from "mongoose";
 import Company from "./company/Company";
 import Role from "./Role";
+import City from "./location/City";
+import State from "./location/State";
+import Country from "./location/Country";
 
 export type UserType = "user" | "company_user" | "customer";
 
@@ -106,17 +109,17 @@ const UserSchema: Schema<IUser> = new Schema({
   },
   country: {
     type: Schema.Types.ObjectId,
-    ref: "Country",
+    ref: Country,
     required: false,
   },
   state: {
     type: Schema.Types.ObjectId,
-    ref: "State",
+    ref: State,
     required: false,
   },
   city: {
     type: Schema.Types.ObjectId,
-    ref: "City",
+    ref: City,
     required: false,
   },
   employment_status: {
