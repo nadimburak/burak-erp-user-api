@@ -41,7 +41,7 @@ export const signIn = asyncHandler(async (req: Request, res: Response) => {
 
 export const signUp = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { name, email, password, type } = req.body;
+    const { name, email, password, type = "customer" } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       res.status(400).json({ message: "User already exists." });
