@@ -1,27 +1,29 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
-// Interface for CityLocation Document
-export interface ICityLocation extends Document {
-  country_location: mongoose.Types.ObjectId; // Reference to CountryLocation model
-  state_location: mongoose.Types.ObjectId; // Reference to StateLocation model
-  name: string; // Surgen, Doctor, Nurse
+// Interface for City Document
+export interface ICity extends Document {
+  country: mongoose.Types.ObjectId; // Reference to Country model
+  state: mongoose.Types.ObjectId; // Reference to State model
+  name: string;
   description: string;
+  latitude: string;
+  longitude: string;
   status: boolean; // true or false
   created_at: Date;
   updated_at: Date;
 }
 
 // Schema Definition
-const CityLocationSchema: Schema<ICityLocation> = new Schema(
+const CitySchema: Schema<ICity> = new Schema(
   {
-    country_location: {
+    country: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "CountryLocation",
+      ref: "Country",
       required: false,
     },
-    state_location: {
+    state: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "StateLocation",
+      ref: "State",
       required: false,
     },
     name: {
@@ -29,6 +31,14 @@ const CityLocationSchema: Schema<ICityLocation> = new Schema(
       required: true,
     },
     description: {
+      type: String,
+      required: false,
+    },
+    latitude: {
+      type: String,
+      required: false,
+    },
+    longitude: {
       type: String,
       required: false,
     },
@@ -51,9 +61,9 @@ const CityLocationSchema: Schema<ICityLocation> = new Schema(
 );
 
 // Model Definition
-const CityLocation: Model<ICityLocation> = mongoose.model<ICityLocation>(
-  "CityLocation",
-  CityLocationSchema
+const City: Model<ICity> = mongoose.model<ICity>(
+  "City",
+  CitySchema
 );
 
-export default CityLocation;
+export default City;

@@ -2,8 +2,10 @@ import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import nodemailer from "nodemailer";
 import { AuthRequest, tokenBlacklist } from "../interfaces/Auth";
+import Company from "../models/company/Company";
 import User, { IUser } from "../models/User";
 import { generateToken, verifyToken } from "../utils/jwt";
+import CompanyCustomer from "../models/company/CompanyCustomer";
 
 const asyncHandler = require("express-async-handler");
 
@@ -39,24 +41,53 @@ export const signIn = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const signUp = asyncHandler(async (req: Request, res: Response) => {
-  try {
-    const { name, email, password } = req.body;
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      res.status(400).json({ message: "User already exists." });
-    }
+  const { name, email, password, type = "customer" } = req.body;
 
-    const user: IUser = new User({ name, email, password });
-    await user.save();
-
-    const accessToken = await generateToken(user?._id as string);
-
-    res
-      .status(201)
-      .json({ accessToken, message: "User registered successfully." });
-  } catch (error) {
-    res.status(500).json({ message: `Error ${modelTitle}.`, error });
+  // 🛑 Basic check
+  if (!name || !email || !password) {
+    return res
+      .status(400)
+      .json({ message: "Name, email and password are required." });
   }
+
+  // 🔁 Check if user already exists
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(400).json({ message: "User already exists." });
+  }
+
+  // ✅ Create User
+  const user: IUser = new User({ name, email, password, type });
+  await user.save();
+
+  // ✅ Auto-create CompanyCustomer if type is 'customer'
+  if (type === "customer") {
+    // const defaultCompany = await Company.findOne(); // You can change logic here
+    // if (!defaultCompany) {
+    //   return res.status(400).json({ message: "Default company not found." });
+    // }
+
+    // const uuid = uuidv4();
+    // const hid = await generateHID(defaultCompany._id.toString());
+
+    const newCompanyCustomer = new CompanyCustomer({
+      customer_user: user._id,
+      // company: defaultCompany._id,
+      // uuid,
+      // hid,
+      status: true,
+    });
+
+    await newCompanyCustomer.save();
+  }
+
+  // ✅ Generate Access Token
+  const accessToken = await generateToken((user._id as string).toString());
+
+  res.status(201).json({
+    accessToken,
+    message: "User registered successfully.",
+  });
 });
 
 export const signOut = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -90,9 +121,9 @@ export const getProfile = asyncHandler(
       .populate("employment_status", "name")
       .populate("marital_status", "name")
       .populate("designation", "name")
-      .populate("country_location", "name")
-      .populate("state_location", "name")
-      .populate("city_location", "name")
+      .populate("country", "name")
+      .populate("state", "name")
+      .populate("city", "name")
       .populate(
         type === "company_user" || type === "customer" ? "company" : ""
       );
@@ -104,7 +135,14 @@ export const getProfile = asyncHandler(
         return res.status(404).json({ message: "User not found." });
       }
 
-      return res.status(200).json(user);
+      const userCount = await User.countDocuments({});
+      const companyCount = await Company.countDocuments({});
+
+      res.status(200).json({
+        ...user.toObject(),
+        no_of_users: userCount, // ⬅️ Ye field tumhare frontend me milega
+        no_of_company: companyCount, // ⬅️ Ye field tumhare frontend me milega
+      });
     } catch (error) {
       console.error("Error fetching user profile:", error);
       return res.status(500).json({
@@ -141,10 +179,11 @@ export const updateProfile = asyncHandler(
         legal_guardians_details,
         designation,
         dependents,
-        country_location,
-        state_location,
-        city_location,
+        country,
+        state,
+        city,
         zip_code,
+        image,
         address,
       } = req.body;
 
@@ -185,6 +224,7 @@ export const updateProfile = asyncHandler(
       // ✅ Update other fields if provided
       if (name) user.name = name;
       if (mobile) user.mobile = mobile;
+      if (image) user.image = image;
       if (passport_number) user.passport_number = passport_number;
       if (spouse_name) user.spouse_name = spouse_name;
       if (pets) user.pets = pets;
@@ -205,9 +245,9 @@ export const updateProfile = asyncHandler(
       if (mother_name) user.mother_name = mother_name;
       if (father_name) user.father_name = father_name;
       if (employment_status) user.employment_status = employment_status;
-      if (country_location) user.country_location = country_location;
-      if (state_location) user.state_location = state_location;
-      if (city_location) user.city_location = city_location;
+      if (country) user.country = country;
+      if (state) user.state = state;
+      if (city) user.city = city;
       if (marital_status) user.marital_status = marital_status;
       if (designation) user.designation = designation;
 

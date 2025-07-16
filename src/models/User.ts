@@ -2,6 +2,9 @@ import bcrypt from "bcrypt";
 import mongoose, { Document, Model, Schema } from "mongoose";
 import Company from "./company/Company";
 import Role from "./Role";
+import City from "./location/City";
+import State from "./location/State";
+import Country from "./location/Country";
 
 export type UserType = "user" | "company_user" | "customer";
 
@@ -10,6 +13,7 @@ export interface IUser extends Document {
   role: mongoose.Types.ObjectId;
   name: string;
   mobile?: number;
+  image?: string;
   dependents?: number;
   emergency_contact_number?: number;
   email: string;
@@ -28,9 +32,9 @@ export interface IUser extends Document {
   pets?: string;
   designation?: mongoose.Types.ObjectId;
   marital_status?: mongoose.Types.ObjectId;
-  country_location?: mongoose.Types.ObjectId;
-  state_location?: mongoose.Types.ObjectId;
-  city_location?: mongoose.Types.ObjectId;
+  country?: mongoose.Types.ObjectId;
+  state?: mongoose.Types.ObjectId;
+  city?: mongoose.Types.ObjectId;
   address?: string;
   zip_code?: number;
   employment_status?: mongoose.Types.ObjectId;
@@ -47,6 +51,7 @@ const UserSchema: Schema<IUser> = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   mobile: { type: Number, required: false },
+  image: { type: String, required: false },
   password: { type: String, required: true },
   passport_number: { type: String, required: false },
   spouse_name: { type: String, required: false },
@@ -102,19 +107,19 @@ const UserSchema: Schema<IUser> = new Schema({
     ref: "MaritalStatus",
     required: false,
   },
-  country_location: {
+  country: {
     type: Schema.Types.ObjectId,
-    ref: "CountryLocation",
+    ref: Country,
     required: false,
   },
-  state_location: {
+  state: {
     type: Schema.Types.ObjectId,
-    ref: "StateLocation",
+    ref: State,
     required: false,
   },
-  city_location: {
+  city: {
     type: Schema.Types.ObjectId,
-    ref: "CityLocation",
+    ref: City,
     required: false,
   },
   employment_status: {
