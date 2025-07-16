@@ -2,9 +2,10 @@ import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import nodemailer from "nodemailer";
 import { AuthRequest, tokenBlacklist } from "../interfaces/Auth";
+import Company from "../models/company/Company";
 import User, { IUser } from "../models/User";
 import { generateToken, verifyToken } from "../utils/jwt";
-import Company from "../models/company/Company";
+import CompanyCustomer from "../models/company/CompanyCustomer";
 
 const asyncHandler = require("express-async-handler");
 
@@ -40,24 +41,53 @@ export const signIn = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const signUp = asyncHandler(async (req: Request, res: Response) => {
-  try {
-    const { name, email, password } = req.body;
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      res.status(400).json({ message: "User already exists." });
-    }
+  const { name, email, password, type = "customer" } = req.body;
 
-    const user: IUser = new User({ name, email, password });
-    await user.save();
-
-    const accessToken = await generateToken(user?._id as string);
-
-    res
-      .status(201)
-      .json({ accessToken, message: "User registered successfully." });
-  } catch (error) {
-    res.status(500).json({ message: `Error ${modelTitle}.`, error });
+  // 🛑 Basic check
+  if (!name || !email || !password) {
+    return res
+      .status(400)
+      .json({ message: "Name, email and password are required." });
   }
+
+  // 🔁 Check if user already exists
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(400).json({ message: "User already exists." });
+  }
+
+  // ✅ Create User
+  const user: IUser = new User({ name, email, password, type });
+  await user.save();
+
+  // ✅ Auto-create CompanyCustomer if type is 'customer'
+  if (type === "customer") {
+    // const defaultCompany = await Company.findOne(); // You can change logic here
+    // if (!defaultCompany) {
+    //   return res.status(400).json({ message: "Default company not found." });
+    // }
+
+    // const uuid = uuidv4();
+    // const hid = await generateHID(defaultCompany._id.toString());
+
+    const newCompanyCustomer = new CompanyCustomer({
+      customer_user: user._id,
+      // company: defaultCompany._id,
+      // uuid,
+      // hid,
+      status: true,
+    });
+
+    await newCompanyCustomer.save();
+  }
+
+  // ✅ Generate Access Token
+  const accessToken = await generateToken((user._id as string).toString());
+
+  res.status(201).json({
+    accessToken,
+    message: "User registered successfully.",
+  });
 });
 
 export const signOut = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -107,7 +137,6 @@ export const getProfile = asyncHandler(
 
       const userCount = await User.countDocuments({});
       const companyCount = await Company.countDocuments({});
-    
 
       res.status(200).json({
         ...user.toObject(),
