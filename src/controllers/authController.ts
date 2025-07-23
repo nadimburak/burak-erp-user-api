@@ -1,9 +1,11 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import nodemailer from "nodemailer";
+import { AuthRequest, tokenBlacklist } from "../interfaces/Auth";
+import Company from "../models/company/Company";
 import User, { IUser } from "../models/User";
 import { generateToken, verifyToken } from "../utils/jwt";
-import { AuthRequest, tokenBlacklist } from "../interfaces/Auth";
+import CompanyCustomer from "../models/company/CompanyCustomer";
 
 const asyncHandler = require("express-async-handler");
 
@@ -14,10 +16,12 @@ export const signIn = asyncHandler(async (req: Request, res: Response) => {
     const { email, password, type } = req.body;
 
     if (!email || !password || !type) {
-      return res.status(400).json({ message: "Email, password, and user type are required." });
+      return res
+        .status(400)
+        .json({ message: "Email, password, and user type are required." });
     }
 
-    const user = await User.findOne({ email, type });
+    const user = await User.findOne({ email, type }).select("+password");
 
     if (!user) {
       return res.status(404).json({ message: `${type} not found.` });
@@ -36,26 +40,54 @@ export const signIn = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
-
 export const signUp = asyncHandler(async (req: Request, res: Response) => {
-  try {
-    const { name, email, password } = req.body;
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      res.status(400).json({ message: "User already exists." });
-    }
+  const { name, email, password, type = "customer" } = req.body;
 
-    const user: IUser = new User({ name, email, password });
-    await user.save();
-
-    const accessToken = await generateToken(user?._id as string);
-
-    res
-      .status(201)
-      .json({ accessToken, message: "User registered successfully." });
-  } catch (error) {
-    res.status(500).json({ message: `Error ${modelTitle}.`, error });
+  // 🛑 Basic check
+  if (!name || !email || !password) {
+    return res
+      .status(400)
+      .json({ message: "Name, email and password are required." });
   }
+
+  // 🔁 Check if user already exists
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(400).json({ message: "User already exists." });
+  }
+
+  // ✅ Create User
+  const user: IUser = new User({ name, email, password, type });
+  await user.save();
+
+  // ✅ Auto-create CompanyCustomer if type is 'customer'
+  if (type === "customer") {
+    // const defaultCompany = await Company.findOne(); // You can change logic here
+    // if (!defaultCompany) {
+    //   return res.status(400).json({ message: "Default company not found." });
+    // }
+
+    // const uuid = uuidv4();
+    // const hid = await generateHID(defaultCompany._id.toString());
+
+    const newCompanyCustomer = new CompanyCustomer({
+      customer_user: user._id,
+      // company: defaultCompany._id,
+      // uuid,
+      // hid,
+      status: true,
+    });
+
+    await newCompanyCustomer.save();
+  }
+
+  // ✅ Generate Access Token
+  const accessToken = await generateToken((user._id as string).toString());
+
+  res.status(201).json({
+    accessToken,
+    message: "User registered successfully.",
+  });
 });
 
 export const signOut = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -75,55 +107,151 @@ export const signOut = asyncHandler(async (req: AuthRequest, res: Response) => {
   }
 });
 
+export const getProfile = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const { _id, type } = req.user;
 
-export const getProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { _id, type } = req.user;
+    // Create the base query
+    const query = User.findById(_id)
+      .select("-password")
+      .populate("company_branch", "name") // 👈 Populate company_branch name only;
+      .populate("gender", "name")
+      .populate("role", "name")
+      .populate("language", "name")
+      .populate("employment_status", "name")
+      .populate("marital_status", "name")
+      .populate("designation", "name")
+      .populate("country", "name")
+      .populate("state", "name")
+      .populate("city", "name")
+      .populate(
+        type === "company_user" || type === "customer" ? "company" : ""
+      );
 
-  // Create the base query
-  const query = User.findById(_id).select("-password");
+    try {
+      const user = await query.exec();
 
-  // Conditionally populate company
-  if (type === "company_user" || type === "customer") {
-    query.populate("company");
-  }
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
+      }
 
-  try {
-    const user = await query.exec();
+      const userCount = await User.countDocuments({});
+      const companyCount = await Company.countDocuments({});
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      res.status(200).json({
+        ...user.toObject(),
+        no_of_users: userCount, // ⬅️ Ye field tumhare frontend me milega
+        no_of_company: companyCount, // ⬅️ Ye field tumhare frontend me milega
+      });
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      return res.status(500).json({
+        message: `Error fetching user profile.`,
+      });
     }
-
-    return res.status(200).json(user);
-  } catch (error) {
-    console.error("Error fetching user profile:", error);
-    return res.status(500).json({
-      message: `Error fetching user profile.`,
-    });
   }
-});
-
+);
 
 export const updateProfile = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     try {
-      const { name, mobile } = req.body;
+      const {
+        name,
+        mobile,
+        company_branch,
+        gender,
+        language,
+        mother_name,
+        father_name,
+        employment_status,
+        marital_status,
+        password,
+        new_password,
+        confirm_password,
+        passport_number,
+        spouse_name,
+        dob,
+        ethnicity,
+        sexuality,
+        driver,
+        pets,
+        emergency_contact_number,
+        legal_guardians_details,
+        designation,
+        dependents,
+        country,
+        state,
+        city,
+        zip_code,
+        image,
+        address,
+      } = req.body;
 
-      // Find the company by ID
-      const users = await User.findById(req.user._id);
-      if (!users) {
-        res.status(404).json({ message: "User not found." });
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
       }
 
-      // Update fields with the new data (if provided)
-      const updatedProfile = await User.findByIdAndUpdate(
-        req.user._id,
-        {
-          ...(name && { name }),
-          ...(mobile && { mobile }),
-        },
-        { new: true } // Return the updated document
-      );
+      // ✅ Handle password change flow
+      if (password || new_password || confirm_password) {
+        // All 3 fields are required
+        if (!password || !new_password || !confirm_password) {
+          return res
+            .status(400)
+            .json({ message: "All password fields are required." });
+        }
+
+        // Match current password
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
+          return res
+            .status(400)
+            .json({ message: "Current password is incorrect." });
+        }
+
+        // Match new and confirm password
+        if (new_password !== confirm_password) {
+          return res
+            .status(400)
+            .json({ message: "New and confirm password do not match." });
+        }
+
+        // Update password
+        // user.password = await bcrypt.hash(new_password, 10);
+        user.password = new_password;
+      }
+
+      // ✅ Update other fields if provided
+      if (name) user.name = name;
+      if (mobile) user.mobile = mobile;
+      if (image) user.image = image;
+      if (passport_number) user.passport_number = passport_number;
+      if (spouse_name) user.spouse_name = spouse_name;
+      if (pets) user.pets = pets;
+      if (dependents) user.dependents = dependents;
+      if (ethnicity) user.ethnicity = ethnicity;
+      if (address) user.address = address;
+      if (zip_code) user.zip_code = zip_code;
+      if (sexuality) user.sexuality = sexuality;
+      if (legal_guardians_details)
+        user.legal_guardians_details = legal_guardians_details;
+      if (driver) user.driver = driver;
+      if (emergency_contact_number)
+        user.emergency_contact_number = emergency_contact_number;
+      if (dob) user.dob = dob;
+      if (company_branch) user.company_branch = company_branch;
+      if (gender) user.gender = gender;
+      if (language && Array.isArray(language)) user.language = language;
+      if (mother_name) user.mother_name = mother_name;
+      if (father_name) user.father_name = father_name;
+      if (employment_status) user.employment_status = employment_status;
+      if (country) user.country = country;
+      if (state) user.state = state;
+      if (city) user.city = city;
+      if (marital_status) user.marital_status = marital_status;
+      if (designation) user.designation = designation;
+
+      const updatedProfile = await user.save();
 
       res.status(200).json({
         message: "Profile updated successfully.",

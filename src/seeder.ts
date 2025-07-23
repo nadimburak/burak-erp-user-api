@@ -32,7 +32,7 @@ export const seedDB = async () => {
         // Create Super Admin User with hashed password (recommended)
         const adminUser = new User({
             name: "Super Admin",
-            email: "admin@gmail.com",
+            email: "admin@burakit.com",
             status: true,
             password: "Abcd@1234", // In production, hash this before saving
             role: superAdminRole._id,
