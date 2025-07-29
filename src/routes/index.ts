@@ -4,18 +4,17 @@ import authRoutes from "./auth";
 
 import designationRoutes from "./catalog/designations";
 import EmploymentStatusRoutes from "./catalog/employmentStatus";
-import genderRoutes from "./catalog/gender";
 import industryRoutes from "./catalog/industry";
 import languageRoutes from "./catalog/language";
 import MaritalStatusRoutes from "./catalog/maritalStatus";
 
 import companyBranchRoutes from "./company/companyBranch";
 
+import { Gender } from "../enums/gender";
 import middlewareRoutes from "./middleware";
 import permissionRoutes from "./permissions";
 import roleRoutes from "./roles";
 import userRoutes from "./users";
-
 
 const app = express();
 
@@ -42,12 +41,21 @@ app.use("/user", [permissionRoutes, roleRoutes, userRoutes]);
 app.use("/company", [companyBranchRoutes]);
 
 app.use("/catalog", [
-  genderRoutes,
   languageRoutes,
   EmploymentStatusRoutes,
   MaritalStatusRoutes,
   designationRoutes,
   industryRoutes,
 ]);
+
+// GET /catalog/genders
+app.get("/genders", (_req, res) => {
+  const genderOptions = Object.entries(Gender).map(([key, value]) => ({
+    _id: value,
+    name: key.charAt(0) + key.slice(1).toLowerCase(), // "Male", "Female", etc.
+  }));
+
+  res.json({ data: genderOptions });
+});
 
 export default app;
