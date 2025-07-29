@@ -115,7 +115,6 @@ export const getProfile = asyncHandler(
     const query = User.findById(_id)
       .select("-password")
       .populate("company_branch", "name") // 👈 Populate company_branch name only;
-      .populate("gender", "name")
       .populate("role", "name")
       .populate("language", "name")
       .populate("employment_status", "name")
