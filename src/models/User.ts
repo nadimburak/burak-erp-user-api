@@ -5,6 +5,7 @@ import Role from "./Role";
 import City from "./location/City";
 import State from "./location/State";
 import Country from "./location/Country";
+import { Gender } from "../enums/gender";
 
 export type UserType = "user" | "company_user" | "customer";
 
@@ -38,7 +39,7 @@ export interface IUser extends Document {
   address?: string;
   zip_code?: number;
   employment_status?: mongoose.Types.ObjectId;
-  gender?: mongoose.Types.ObjectId;
+  gender?: Gender;
   company_branch?: mongoose.Types.ObjectId;
   language?: mongoose.Types.ObjectId[];
   comparePassword(password: string): Promise<boolean>;
@@ -128,8 +129,8 @@ const UserSchema: Schema<IUser> = new Schema({
     required: false,
   },
   gender: {
-    type: Schema.Types.ObjectId,
-    ref: "Gender",
+    type: String,
+    enum: Object.values(Gender),
     required: false,
   },
   company_branch: {
