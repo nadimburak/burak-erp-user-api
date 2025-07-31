@@ -15,6 +15,7 @@ export const getUsers = async (req: Request, res: Response) => {
       sortBy = "name", // Default sorting field
       order = "asc", // Default order
       search = "",
+      type = "user", // Default type to 'user'
     } = req.query;
 
     // Parse and validate page and limit
@@ -31,7 +32,10 @@ export const getUsers = async (req: Request, res: Response) => {
       }
       : {};
 
-    query.type = "user";
+    // Add type to the query
+    if (type) {
+      query.type = type; // Filter by type if provided
+    }
 
     // Fetch data with pagination, sorting, and filtering
     const data = await User.find(query)
