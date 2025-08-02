@@ -124,7 +124,7 @@ export const getProfile = asyncHandler(
       .populate("state", "name")
       .populate("city", "name")
       .populate(
-        type === "company_user" || type === "customer" ? "company" : ""
+        type === "user" || type === "customer" ? "company" : ""
       );
 
     try {

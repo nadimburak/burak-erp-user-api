@@ -5,5 +5,5 @@ Accept: application/json
 {
     "email": "nadim.burak@gmail.com",
     "password": "Abcd@1234",
-    "type": "company_user"  
+    "type": "user"  
 }
