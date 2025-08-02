@@ -18,6 +18,8 @@ export const getUsers = async (req: Request, res: Response) => {
       type = "user", // Default type to 'user'
     } = req.query;
 
+    const { company } = req.headers;
+
     // Parse and validate page and limit
     const parsedPage = Math.max(parseInt(page as string, 10), 1); // Minimum value 1
     const parsedLimit = Math.max(parseInt(limit as string, 10), 1); // Minimum value 1
@@ -32,14 +34,23 @@ export const getUsers = async (req: Request, res: Response) => {
       }
       : {};
 
+    if (company) {
+      query.company = company; // Filter by company if provided
+    } else {
+      query.company = null;
+    }
+
     // Add type to the query
     if (type) {
       query.type = type; // Filter by type if provided
+    } else {
+      query.type = "user"; // Default type to 'user'
     }
 
     // Fetch data with pagination, sorting, and filtering
     const data = await User.find(query)
       .populate("role", "name")
+      .populate("company", "name")
       .select("-password")
       .sort({ [sortBy as string]: sortOrder })
       .skip((parsedPage - 1) * parsedLimit)
