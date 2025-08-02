@@ -7,7 +7,7 @@ import State from "./location/State";
 import Country from "./location/Country";
 import { Gender } from "../enums/gender";
 
-export type UserType = "user" | "company_user" | "customer";
+export type UserType = "user" | "customer" | "super_admin";
 
 export interface IUser extends Document {
   company: mongoose.Types.ObjectId;
@@ -140,7 +140,7 @@ const UserSchema: Schema<IUser> = new Schema({
   },
   type: {
     type: String,
-    enum: ["user", "company_user", "customer"],
+    enum: ["user", "customer", "super_admin"],
     required: true,
   },
   language: [
