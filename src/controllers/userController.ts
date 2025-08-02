@@ -50,6 +50,7 @@ export const getUsers = async (req: Request, res: Response) => {
     // Fetch data with pagination, sorting, and filtering
     const data = await User.find(query)
       .populate("role", "name")
+      .populate("company", "name")
       .select("-password")
       .sort({ [sortBy as string]: sortOrder })
       .skip((parsedPage - 1) * parsedLimit)
