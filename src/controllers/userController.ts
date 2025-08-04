@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import User, { IUser } from "../models/User";
+import mongoose from "mongoose";
 
 const modelTitle = "User";
 
@@ -18,6 +19,8 @@ export const getUsers = async (req: Request, res: Response) => {
       type = "user", // Default type to 'user'
     } = req.query;
 
+    const { company } = req.headers;
+
     // Parse and validate page and limit
     const parsedPage = Math.max(parseInt(page as string, 10), 1); // Minimum value 1
     const parsedLimit = Math.max(parseInt(limit as string, 10), 1); // Minimum value 1
@@ -32,14 +35,23 @@ export const getUsers = async (req: Request, res: Response) => {
       }
       : {};
 
+    if (company) {
+      query.company = company; // Filter by company if provided
+    } else {
+      query.company = null;
+    }
+
     // Add type to the query
     if (type) {
       query.type = type; // Filter by type if provided
+    } else {
+      query.type = "user"; // Default type to 'user'
     }
 
     // Fetch data with pagination, sorting, and filtering
     const data = await User.find(query)
       .populate("role", "name")
+      .populate("company", "name")
       .select("-password")
       .sort({ [sortBy as string]: sortOrder })
       .skip((parsedPage - 1) * parsedLimit)
@@ -79,7 +91,9 @@ export const getUser = async (req: Request, res: Response) => {
 
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const { role, name, email, password, status, image } = req.body;
+    const { role, name, email, password, status, image, type } = req.body;
+
+    const { company } = req.headers;
 
     // Check if the user already exists
     const existingData = await User.findOne({ email });
@@ -88,13 +102,14 @@ export const createUser = async (req: Request, res: Response) => {
     }
 
     const newData: IUser = new User({
+      company: company, // Use the company from headers
       role,
       name,
       email,
       image,
       password,
       status,
-      type: "user",
+      type: type || "user", // Default type to 'user' if not provided
     });
     await newData.save();
 
@@ -109,7 +124,8 @@ export const createUser = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, email, password, role, status, image } = req.body;
+    const { name, email, password, role, status, image, type } = req.body;
+    const { company } = req.headers;
 
     const updatedData: Partial<IUser> = {
       name,
@@ -117,8 +133,14 @@ export const updateUser = async (req: Request, res: Response) => {
       image,
       role,
       status,
-      type: "user",
+      type: type || "user", // Default type to 'user' if not provided
     };
+
+    // Update company if provided in headers
+    if (company) {
+      updatedData.company = new mongoose.Types.ObjectId(company as string); // Convert to ObjectId
+    }
+
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       updatedData.password = hashedPassword; // Update password only if provided
