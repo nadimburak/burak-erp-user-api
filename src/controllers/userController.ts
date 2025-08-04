@@ -42,11 +42,11 @@ export const getUsers = async (req: Request, res: Response) => {
     }
 
     // Add type to the query
-    if (type) {
-      query.type = type; // Filter by type if provided
-    } else {
-      query.type = "user"; // Default type to 'user'
-    }
+    // if (type) {
+    //   query.type = type; // Filter by type if provided
+    // } else {
+    //   query.type = "user"; // Default type to 'user'
+    // }
 
     // Fetch data with pagination, sorting, and filtering
     const data = await User.find(query)
