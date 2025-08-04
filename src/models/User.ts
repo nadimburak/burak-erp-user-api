@@ -5,8 +5,10 @@ import Role from "./Role";
 import City from "./location/City";
 import State from "./location/State";
 import Country from "./location/Country";
+import { Gender } from "../enums/gender";
+import { MaritalStatus } from "../enums/maritalStatus";
 
-export type UserType = "user" | "company_user" | "customer";
+export type UserType = "user" | "customer" | "super_admin";
 
 export interface IUser extends Document {
   company: mongoose.Types.ObjectId;
@@ -31,14 +33,14 @@ export interface IUser extends Document {
   driver?: string;
   pets?: string;
   designation?: mongoose.Types.ObjectId;
-  marital_status?: mongoose.Types.ObjectId;
+  marital_status?: MaritalStatus;
   country?: mongoose.Types.ObjectId;
   state?: mongoose.Types.ObjectId;
   city?: mongoose.Types.ObjectId;
   address?: string;
   zip_code?: number;
   employment_status?: mongoose.Types.ObjectId;
-  gender?: mongoose.Types.ObjectId;
+  gender?: Gender;
   company_branch?: mongoose.Types.ObjectId;
   language?: mongoose.Types.ObjectId[];
   comparePassword(password: string): Promise<boolean>;
@@ -103,8 +105,8 @@ const UserSchema: Schema<IUser> = new Schema({
     required: false,
   },
   marital_status: {
-    type: Schema.Types.ObjectId,
-    ref: "MaritalStatus",
+    type: String,
+    enum: Object.values(MaritalStatus),
     required: false,
   },
   country: {
@@ -128,8 +130,8 @@ const UserSchema: Schema<IUser> = new Schema({
     required: false,
   },
   gender: {
-    type: Schema.Types.ObjectId,
-    ref: "Gender",
+    type: String,
+    enum: Object.values(Gender),
     required: false,
   },
   company_branch: {
@@ -139,7 +141,7 @@ const UserSchema: Schema<IUser> = new Schema({
   },
   type: {
     type: String,
-    enum: ["user", "company_user", "customer"],
+    enum: ["user", "customer", "super_admin"],
     required: true,
   },
   language: [

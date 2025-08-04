@@ -22,6 +22,8 @@ export const getPermissions = async (req: Request, res: Response) => {
       search = "",
     } = req.query;
 
+    const { company } = req.headers;
+
     // Parse and validate page and limit
     const parsedPage = Math.max(parseInt(page as string, 10), 1); // Minimum value 1
     const parsedLimit = Math.max(parseInt(limit as string, 10), 1); // Minimum value 1
@@ -29,13 +31,17 @@ export const getPermissions = async (req: Request, res: Response) => {
 
     const query: any = search
       ? {
-          $or: [
-            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-          ],
-        }
+        $or: [
+          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+        ],
+      }
       : {};
 
-    query.company = null;
+    if (company) {
+      query.company = company; // Filter by company if provided
+    } else {
+      query.company = null;
+    }
 
     // Fetch locations with sorting and pagination
     const data = await Permission.find(query)

@@ -14,6 +14,8 @@ export const getRoles = async (req: Request, res: Response) => {
       search = "",
     } = req.query;
 
+    const { company } = req.headers;
+
     // Parse and validate page and limit
     const parsedPage = Math.max(parseInt(page as string, 10), 1); // Minimum value 1
     const parsedLimit = Math.max(parseInt(limit as string, 10), 1); // Minimum value 1
@@ -27,7 +29,11 @@ export const getRoles = async (req: Request, res: Response) => {
       }
       : {};
 
-    query.company = null;
+    if (company) {
+      query.company = company; // Filter by company if provided
+    } else {
+      query.company = null;
+    }
 
     // Fetch locations with sorting and pagination
     const data = await Role.find(query)
