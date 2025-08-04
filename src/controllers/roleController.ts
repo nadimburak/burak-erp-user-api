@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import Role from "../models/Role";
 import Permission from "../models/Permission";
+import { AuthRequest } from "../interfaces/Auth";
 
 const modelTitle = "Role";
 
-export const getRoles = async (req: Request, res: Response) => {
+export const getRoles = async (req: AuthRequest, res: Response) => {
   try {
     const {
       page = "1", // Default to page 1 if not provided
@@ -15,6 +16,7 @@ export const getRoles = async (req: Request, res: Response) => {
     } = req.query;
 
     const { company } = req.headers;
+    const { type } = req.user;
 
     // Parse and validate page and limit
     const parsedPage = Math.max(parseInt(page as string, 10), 1); // Minimum value 1
@@ -23,18 +25,17 @@ export const getRoles = async (req: Request, res: Response) => {
 
     const query: any = search
       ? {
-        $or: [
-          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-        ],
-      }
+          $or: [
+            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+          ],
+        }
       : {};
 
-    if (company) {
-      query.company = company; // Filter by company if provided
-    } else {
-      query.company = null;
+     if (type != "super_admin") {
+      if (company) {
+        query.company = company; // Filter by company if provided
+      }
     }
-
     // Fetch locations with sorting and pagination
     const data = await Role.find(query)
       .populate("permissions", "name")
@@ -57,7 +58,7 @@ export const getRoles = async (req: Request, res: Response) => {
   }
 };
 
-export const getRole = async (req: Request, res: Response) => {
+export const getRole = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const data = await Role.findById(id).populate("permissions", "name");
@@ -72,7 +73,7 @@ export const getRole = async (req: Request, res: Response) => {
   }
 };
 
-export const createRole = async (req: Request, res: Response) => {
+export const createRole = async (req: AuthRequest, res: Response) => {
   try {
     const { name, status, permissions } = req.body;
 
@@ -92,7 +93,7 @@ export const createRole = async (req: Request, res: Response) => {
   }
 };
 
-export const updateRole = async (req: Request, res: Response) => {
+export const updateRole = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { name, status, permissions } = req.body;
@@ -122,7 +123,7 @@ export const updateRole = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteRole = async (req: Request, res: Response) => {
+export const deleteRole = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 

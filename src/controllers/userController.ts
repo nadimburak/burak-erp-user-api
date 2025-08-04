@@ -1,14 +1,13 @@
 import bcrypt from "bcrypt";
-import { Request, Response } from "express";
-import User, { IUser } from "../models/User";
+import { Response } from "express";
 import mongoose from "mongoose";
+import { AuthRequest } from "../interfaces/Auth";
+import User, { IUser } from "../models/User";
 
 const modelTitle = "User";
 
-
-
 //for only user type
-export const getUsers = async (req: Request, res: Response) => {
+export const getUsers = async (req: AuthRequest, res: Response) => {
   try {
     const {
       page = "1", // Default to page 1 if not provided
@@ -16,10 +15,10 @@ export const getUsers = async (req: Request, res: Response) => {
       sortBy = "name", // Default sorting field
       order = "asc", // Default order
       search = "",
-      type = "user", // Default type to 'user'
     } = req.query;
 
     const { company } = req.headers;
+    const { type } = req.user;
 
     // Parse and validate page and limit
     const parsedPage = Math.max(parseInt(page as string, 10), 1); // Minimum value 1
@@ -28,25 +27,20 @@ export const getUsers = async (req: Request, res: Response) => {
 
     const query: any = search
       ? {
-        $or: [
-          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-          { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
-        ],
-      }
+          $or: [
+            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+            { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
+          ],
+        }
       : {};
 
-    if (company) {
-      query.company = company; // Filter by company if provided
-    } else {
-      query.company = null;
-    }
+    // console.log(user, "COMPANY USER");
 
-    // Add type to the query
-    // if (type) {
-    //   query.type = type; // Filter by type if provided
-    // } else {
-    //   query.type = "user"; // Default type to 'user'
-    // }
+    if (type != "super_admin") {
+      if (company) {
+        query.company = company; // Filter by company if provided
+      }
+    }
 
     // Fetch data with pagination, sorting, and filtering
     const data = await User.find(query)
@@ -72,7 +66,7 @@ export const getUsers = async (req: Request, res: Response) => {
   }
 };
 
-export const getUser = async (req: Request, res: Response) => {
+export const getUser = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -89,7 +83,7 @@ export const getUser = async (req: Request, res: Response) => {
   }
 };
 
-export const createUser = async (req: Request, res: Response) => {
+export const createUser = async (req: AuthRequest, res: Response) => {
   try {
     const { role, name, email, password, status, image, type } = req.body;
 
@@ -121,7 +115,7 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
-export const updateUser = async (req: Request, res: Response) => {
+export const updateUser = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { name, email, password, role, status, image, type } = req.body;
@@ -165,7 +159,7 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
+export const deleteUser = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -180,7 +174,7 @@ export const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export const updatePassword = async (req: Request, res: Response) => {
+export const updatePassword = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { password } = req.body;
