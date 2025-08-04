@@ -6,6 +6,7 @@ import Company from "../models/company/Company";
 import User, { IUser } from "../models/User";
 import { generateToken, verifyToken } from "../utils/jwt";
 import CompanyCustomer from "../models/company/CompanyCustomer";
+import { type } from "os";
 
 const asyncHandler = require("express-async-handler");
 
@@ -13,15 +14,15 @@ const modelTitle = "User";
 
 export const signIn = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { email, password, type } = req.body;
+    const { email, password, } = req.body;
 
-    if (!email || !password || !type) {
+    if (!email || !password ) {
       return res
         .status(400)
-        .json({ message: "Email, password, and user type are required." });
+        .json({ message: "Email, password are required." });
     }
 
-    const user = await User.findOne({ email, type }).select("+password");
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       return res.status(404).json({ message: `${type} not found.` });
