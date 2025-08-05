@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { AuthRequest } from "../interfaces/Auth";
+import { AuthRequest, tokenBlacklist } from "../interfaces/Auth";
 import Role from "../models/Role";
 import User from "../models/User";
 import { verifyToken } from "../utils/jwt";
@@ -21,8 +21,12 @@ export const authenticate = async (
     return;
   }
 
-  try {
+  if (tokenBlacklist.has(token)) {
+    res.status(401).json({ message: "Invalid token (signed out)" });
+    return;
+  }
 
+  try {
     const verified = await verifyToken(token);
 
     let user = null;
@@ -41,28 +45,28 @@ export const authenticate = async (
 
 export const authorizeRole =
   (roleName: string) =>
-    async (req: AuthRequest, res: Response, next: NextFunction) => {
-      if (req.user?.role !== roleName) {
-        res.status(403).send({ message: "Forbidden" });
-      }
-      next();
-    };
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (req.user?.role !== roleName) {
+      res.status(403).send({ message: "Forbidden" });
+    }
+    next();
+  };
 
 export const authorizePermission =
   (permissionName: string) =>
-    async (req: AuthRequest, res: Response, next: NextFunction) => {
-      if (req?.user) {
-        const role = await Role.findById(req?.user?.role).populate<{
-          permissions: any[];
-        }>("permissions");
-        if (
-          !role ||
-          !role.permissions.some(
-            (p: any) => p.name.toLowerCase() === permissionName.toLowerCase()
-          )
-        ) {
-          res.status(403).send({ message: "Forbidden" });
-        }
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (req?.user) {
+      const role = await Role.findById(req?.user?.role).populate<{
+        permissions: any[];
+      }>("permissions");
+      if (
+        !role ||
+        !role.permissions.some(
+          (p: any) => p.name.toLowerCase() === permissionName.toLowerCase()
+        )
+      ) {
+        res.status(403).send({ message: "Forbidden" });
       }
-      next();
-    };
+    }
+    next();
+  };
