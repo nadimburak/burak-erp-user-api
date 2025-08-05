@@ -15,6 +15,7 @@ import middlewareRoutes from "./middleware";
 import permissionRoutes from "./permissions";
 import roleRoutes from "./roles";
 import userRoutes from "./users";
+import { authenticate } from "../middlewares/auth.middleware";
 
 const app = express();
 
@@ -33,6 +34,8 @@ app.get("/seed", (req: Request, res: Response) => {
 });
 
 app.use("/auth", authRoutes);
+
+app.use(authenticate);
 
 app.use("/middleware", middlewareRoutes);
 
