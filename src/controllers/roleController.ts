@@ -25,15 +25,17 @@ export const getRoles = async (req: AuthRequest, res: Response) => {
 
     const query: any = search
       ? {
-          $or: [
-            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-          ],
-        }
+        $or: [
+          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+        ],
+      }
       : {};
 
-     if (type != "super_admin") {
-      if (company) {
-        query.company = company; // Filter by company if provided
+    if (company) {
+      query.company = company; // Filter by company if provided
+    } else {
+      if (type != "super_admin") {
+        query.company = null
       }
     }
     // Fetch locations with sorting and pagination

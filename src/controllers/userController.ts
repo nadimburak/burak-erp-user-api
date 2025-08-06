@@ -36,10 +36,10 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
 
     // console.log(user, "COMPANY USER");
 
-    if (type != "super_admin") {
-      if (company) {
-        query.company = company; // Filter by company if provided
-      } else {
+    if (company) {
+      query.company = company; // Filter by company if provided
+    } else {
+      if (type != "super_admin") {
         query.company = null
       }
     }
