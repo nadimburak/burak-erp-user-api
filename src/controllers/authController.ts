@@ -16,7 +16,7 @@ export const signIn = asyncHandler(async (req: Request, res: Response) => {
   try {
     const { email, password, } = req.body;
 
-    if (!email || !password ) {
+    if (!email || !password) {
       return res
         .status(400)
         .json({ message: "Email, password are required." });
@@ -68,14 +68,8 @@ export const signUp = asyncHandler(async (req: Request, res: Response) => {
     //   return res.status(400).json({ message: "Default company not found." });
     // }
 
-    // const uuid = uuidv4();
-    // const hid = await generateHID(defaultCompany._id.toString());
-
     const newCompanyCustomer = new CompanyCustomer({
       customer_user: user._id,
-      // company: defaultCompany._id,
-      // uuid,
-      // hid,
       status: true,
     });
 
