@@ -3,11 +3,10 @@ import mongoose, { Document, Model, Schema } from "mongoose";
 export interface ICompanyCustomer extends Document {
   customer_user: mongoose.Types.ObjectId;
   company?: mongoose.Types.ObjectId;
-  hid?: string; // Optional field
+  uuid?: string; // Optional field
   company_branch: mongoose.Types.ObjectId;
   status: boolean;
   created_at: Date;
-  uuid: string;
   updated_at: Date;
 }
 
@@ -21,10 +20,6 @@ const CompanyCustomerSchema: Schema<ICompanyCustomer> = new Schema(
     company: {
       type: Schema.Types.ObjectId,
       ref: "Company",
-      required: false,
-    },
-    hid: {
-      type: String,
       required: false,
     },
     uuid: {
