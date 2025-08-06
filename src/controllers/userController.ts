@@ -27,11 +27,11 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
 
     const query: any = search
       ? {
-          $or: [
-            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-            { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
-          ],
-        }
+        $or: [
+          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+          { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
+        ],
+      }
       : {};
 
     // console.log(user, "COMPANY USER");
@@ -39,6 +39,8 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
     if (type != "super_admin") {
       if (company) {
         query.company = company; // Filter by company if provided
+      } else {
+        query.company = null
       }
     }
 
