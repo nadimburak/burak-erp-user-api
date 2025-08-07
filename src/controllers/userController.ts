@@ -36,20 +36,11 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
 
     // console.log(user, "COMPANY USER");
 
-    if (type === "super_admin") {
-      if (company) {
-        // Company selected → show selected company data + all super_admin data (with or without company)
-        query.$or = [{ type: "super_admin" }, { company: company }];
-      } else {
-        // Company not selected → show only null company data and super_admin type
-        query.$or = [{ type: "super_admin" }, { company: null }];
-      }
-    } else {
-      // type is user
+    // Apply company filter based on user type and header
+    if (type !== "super_admin") {
       if (company) {
         query.company = company;
       } else {
-        // Company not selected → return empty
         res.status(200).json({
           data: [],
           total: 0,
@@ -57,6 +48,10 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
           totalPages: 0,
         });
         return;
+      }
+    } else {
+      if (company) {
+        query.company = company;
       }
     }
 
@@ -126,6 +121,10 @@ export const createUser = async (req: AuthRequest, res: Response) => {
       status,
       type: type || "user", // Default type to 'user' if not provided
     });
+
+    if (company) {
+      newData.company = [new mongoose.Types.ObjectId(company as string)];
+    }
     await newData.save();
 
     res
@@ -153,7 +152,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
 
     // Update company if provided in headers
     if (company) {
-      updatedData.company = new mongoose.Types.ObjectId(company as string); // Convert to ObjectId
+      updatedData.company = [new mongoose.Types.ObjectId(company as string)]; // Convert to ObjectId
     }
 
     if (password) {
