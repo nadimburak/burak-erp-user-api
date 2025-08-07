@@ -33,17 +33,17 @@ export const getPermissions = async (req: AuthRequest, res: Response) => {
 
     const query: any = search
       ? {
-        $or: [
-          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-        ],
-      }
+          $or: [
+            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+          ],
+        }
       : {};
 
     if (company) {
       query.company = company; // Filter by company if provided
     } else {
       if (type != "super_admin") {
-        query.company = null
+        query.company = null;
       }
     }
 
@@ -85,8 +85,13 @@ export const getPermission = async (req: AuthRequest, res: Response) => {
 
 export const createPermission = async (req: AuthRequest, res: Response) => {
   try {
+    const { company } = req?.headers;
     const { name, status } = req.body;
-    const newData = new Permission({ name, status });
+    const newData = new Permission({
+      company: company, // Use the company from headers
+      name,
+      status,
+    });
 
     await newData.save();
     res
