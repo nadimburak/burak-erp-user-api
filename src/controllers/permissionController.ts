@@ -39,11 +39,22 @@ export const getPermissions = async (req: AuthRequest, res: Response) => {
         }
       : {};
 
-    if (company) {
-      query.company = company; // Filter by company if provided
+    // Apply company filter based on user type and header
+    if (type !== "super_admin") {
+      if (company) {
+        query.company = company;
+      } else {
+        res.status(200).json({
+          data: [],
+          total: 0,
+          currentPage: 1,
+          totalPages: 0,
+        });
+        return;
+      }
     } else {
-      if (type != "super_admin") {
-        query.company = null;
+      if (company) {
+        query.company = company;
       }
     }
 

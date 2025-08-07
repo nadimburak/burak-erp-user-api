@@ -11,7 +11,7 @@ import { MaritalStatus } from "../enums/maritalStatus";
 export type UserType = "user" | "customer" | "super_admin";
 
 export interface IUser extends Document {
-  company: mongoose.Types.ObjectId;
+  company: mongoose.Types.ObjectId[];
   role: mongoose.Types.ObjectId;
   name: string;
   mobile?: number;
@@ -48,7 +48,7 @@ export interface IUser extends Document {
 }
 
 const UserSchema: Schema<IUser> = new Schema({
-  company: { type: Schema.Types.ObjectId, ref: Company, required: false },
+  company: [{ type: Schema.Types.ObjectId, ref: Company, required: false }],
   role: { type: Schema.Types.ObjectId, ref: Role, required: false },
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
