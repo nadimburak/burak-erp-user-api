@@ -23,7 +23,7 @@ export const authenticate = async (
 
   if (tokenBlacklist.has(token)) {
     res.status(401).json({ message: "Invalid token (signed out)" });
-    return;
+    return;   
   }
 
   try {

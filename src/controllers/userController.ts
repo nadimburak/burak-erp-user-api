@@ -27,22 +27,40 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
 
     const query: any = search
       ? {
-        $or: [
-          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-          { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
-        ],
-      }
+          $or: [
+            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+            { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
+          ],
+        }
       : {};
 
     // console.log(user, "COMPANY USER");
 
-    if (company) {
-      query.company = company; // Filter by company if provided
+    if (type === "super_admin") {
+      if (company) {
+        // Company selected → show selected company data + all super_admin data (with or without company)
+        query.$or = [{ type: "super_admin" }, { company: company }];
+      } else {
+        // Company not selected → show only null company data and super_admin type
+        query.$or = [{ type: "super_admin" }, { company: null }];
+      }
     } else {
-      if (type != "super_admin") {
-        query.company = null
+      // type is user
+      if (company) {
+        query.company = company;
+      } else {
+        // Company not selected → return empty
+        res.status(200).json({
+          data: [],
+          total: 0,
+          currentPage: 1,
+          totalPages: 0,
+        });
+        return;
       }
     }
+
+    // If super_admin, don't add company filter – get all users
 
     // Fetch data with pagination, sorting, and filtering
     const data = await User.find(query)
@@ -63,6 +81,7 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
       currentPage: parsedPage,
       totalPages: Math.ceil(totalData / parsedLimit),
     });
+    return;
   } catch (error) {
     res.status(500).json({ message: `Error ${modelTitle}.`, error });
   }
