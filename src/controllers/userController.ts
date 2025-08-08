@@ -27,22 +27,35 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
 
     const query: any = search
       ? {
-        $or: [
-          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-          { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
-        ],
-      }
+          $or: [
+            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+            { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
+          ],
+        }
       : {};
 
     // console.log(user, "COMPANY USER");
 
-    if (company) {
-      query.company = company; // Filter by company if provided
+    // Apply company filter based on user type and header
+    if (type !== "super_admin") {
+      if (company) {
+        query.company = company;
+      } else {
+        res.status(200).json({
+          data: [],
+          total: 0,
+          currentPage: 1,
+          totalPages: 0,
+        });
+        return;
+      }
     } else {
-      if (type != "super_admin") {
-        query.company = null
+      if (company) {
+        query.company = company;
       }
     }
+
+    // If super_admin, don't add company filter – get all users
 
     // Fetch data with pagination, sorting, and filtering
     const data = await User.find(query)
@@ -63,6 +76,7 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
       currentPage: parsedPage,
       totalPages: Math.ceil(totalData / parsedLimit),
     });
+    return;
   } catch (error) {
     res.status(500).json({ message: `Error ${modelTitle}.`, error });
   }
@@ -107,6 +121,10 @@ export const createUser = async (req: AuthRequest, res: Response) => {
       status,
       type: type || "user", // Default type to 'user' if not provided
     });
+
+    if (company) {
+      newData.company = [new mongoose.Types.ObjectId(company as string)];
+    }
     await newData.save();
 
     res
@@ -134,7 +152,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
 
     // Update company if provided in headers
     if (company) {
-      updatedData.company = new mongoose.Types.ObjectId(company as string); // Convert to ObjectId
+      updatedData.company = [new mongoose.Types.ObjectId(company as string)]; // Convert to ObjectId
     }
 
     if (password) {

@@ -25,17 +25,28 @@ export const getRoles = async (req: AuthRequest, res: Response) => {
 
     const query: any = search
       ? {
-        $or: [
-          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-        ],
-      }
+          $or: [
+            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+          ],
+        }
       : {};
 
-    if (company) {
-      query.company = company; // Filter by company if provided
+    // Apply company filter based on user type and header
+    if (type !== "super_admin") {
+      if (company) {
+        query.company = company;
+      } else {
+        res.status(200).json({
+          data: [],
+          total: 0,
+          currentPage: 1,
+          totalPages: 0,
+        });
+        return;
+      }
     } else {
-      if (type != "super_admin") {
-        query.company = null
+      if (company) {
+        query.company = company;
       }
     }
     // Fetch locations with sorting and pagination
@@ -77,6 +88,7 @@ export const getRole = async (req: AuthRequest, res: Response) => {
 
 export const createRole = async (req: AuthRequest, res: Response) => {
   try {
+    const { company } = req.headers;
     const { name, status, permissions } = req.body;
 
     // Ensure all permissions exist in the database
@@ -85,7 +97,12 @@ export const createRole = async (req: AuthRequest, res: Response) => {
       res.status(400).json({ message: "Some permissions are invalid." });
     }
 
-    const newData = new Role({ name, status, permissions });
+    const newData = new Role({
+      company: company, // Use the company from headers
+      name,
+      status,
+      permissions,
+    });
     await newData.save();
     res
       .status(201)
