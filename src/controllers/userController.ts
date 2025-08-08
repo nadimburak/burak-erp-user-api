@@ -88,6 +88,7 @@ export const getUser = async (req: AuthRequest, res: Response) => {
 
     const data = await User.findById(id)
       .select("-password")
+      .populate("company", "name") // Exclude password
       .populate("role", "name"); // Exclude password
     if (!data) {
       res.status(404).json({ message: `${modelTitle} not found.` });
