@@ -59,21 +59,6 @@ export const signUp = asyncHandler(async (req: Request, res: Response) => {
   const user: IUser = new User({ name, email, password, type });
   await user.save();
 
-  // ✅ Auto-create CompanyCustomer if type is 'customer'
-  if (type === "customer") {
-    // const defaultCompany = await Company.findOne(); // You can change logic here
-    // if (!defaultCompany) {
-    //   return res.status(400).json({ message: "Default company not found." });
-    // }
-
-    const newCompanyCustomer = new CompanyCustomer({
-      customer_user: user._id,
-      status: true,
-    });
-
-    await newCompanyCustomer.save();
-  }
-
   // ✅ Generate Access Token
   const accessToken = await generateToken((user._id as string).toString());
 
