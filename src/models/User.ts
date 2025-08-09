@@ -32,7 +32,6 @@ export interface IUser extends Document {
   sexuality?: string;
   driver?: string;
   pets?: string;
-  designation?: mongoose.Types.ObjectId;
   marital_status?: MaritalStatus;
   country?: mongoose.Types.ObjectId;
   state?: mongoose.Types.ObjectId;
@@ -99,11 +98,7 @@ const UserSchema: Schema<IUser> = new Schema({
     type: String,
     required: false,
   },
-  designation: {
-    type: Schema.Types.ObjectId,
-    ref: "Designation",
-    required: false,
-  },
+  
   marital_status: {
     type: String,
     enum: Object.values(MaritalStatus),
