@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
-import Role from "../models/Role";
-import Permission from "../models/Permission";
+import { Response } from "express";
 import { AuthRequest } from "../interfaces/Auth";
+import Permission from "../models/Permission";
+import Role from "../models/Role";
 
 const modelTitle = "Role";
 
@@ -51,6 +51,7 @@ export const getRoles = async (req: AuthRequest, res: Response) => {
     }
     // Fetch locations with sorting and pagination
     const data = await Role.find(query)
+      .populate("company", "name")
       .populate("permissions", "name")
       .sort({ [sortBy as string]: sortOrder })
       .skip((parsedPage - 1) * parsedLimit)
@@ -74,7 +75,9 @@ export const getRoles = async (req: AuthRequest, res: Response) => {
 export const getRole = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const data = await Role.findById(id).populate("permissions", "name");
+    const data = await Role.findById(id)
+      .populate("company", "name")
+      .populate("permissions", "name");
 
     if (!data) {
       res.status(404).json({ message: `${modelTitle} not found.` });
