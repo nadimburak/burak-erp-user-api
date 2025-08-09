@@ -38,7 +38,6 @@ export interface IUser extends Document {
   city?: mongoose.Types.ObjectId;
   address?: string;
   zip_code?: number;
-  employment_status?: mongoose.Types.ObjectId;
   gender?: Gender;
   company_branch?: mongoose.Types.ObjectId;
   language?: mongoose.Types.ObjectId[];
@@ -98,7 +97,7 @@ const UserSchema: Schema<IUser> = new Schema({
     type: String,
     required: false,
   },
-  
+
   marital_status: {
     type: String,
     enum: Object.values(MaritalStatus),
@@ -117,11 +116,6 @@ const UserSchema: Schema<IUser> = new Schema({
   city: {
     type: Schema.Types.ObjectId,
     ref: City,
-    required: false,
-  },
-  employment_status: {
-    type: Schema.Types.ObjectId,
-    ref: "EmploymentStatus",
     required: false,
   },
   gender: {

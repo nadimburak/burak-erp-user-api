@@ -6,6 +6,7 @@ export interface ICompanyUser extends Document {
   uuid?: string; // Optional field
   company_branch: mongoose.Types.ObjectId;
   designation?: mongoose.Types.ObjectId;
+  employment_status?: mongoose.Types.ObjectId;
   status: boolean;
   created_at: Date;
   updated_at: Date;
@@ -35,6 +36,11 @@ const CompanyUserSchema: Schema<ICompanyUser> = new Schema(
     designation: {
       type: Schema.Types.ObjectId,
       ref: "Designation",
+      required: false,
+    },
+    employment_status: {
+      type: Schema.Types.ObjectId,
+      ref: "EmploymentStatus",
       required: false,
     },
     status: {
