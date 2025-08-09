@@ -2,9 +2,6 @@ import bcrypt from "bcrypt";
 import mongoose, { Document, Model, Schema } from "mongoose";
 import Company from "./company/Company";
 import Role from "./Role";
-import City from "./location/City";
-import State from "./location/State";
-import Country from "./location/Country";
 import { Gender } from "../enums/gender";
 import { MaritalStatus } from "../enums/maritalStatus";
 
