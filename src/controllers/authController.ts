@@ -14,12 +14,10 @@ const modelTitle = "User";
 
 export const signIn = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { email, password, } = req.body;
+    const { email, password } = req.body;
 
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email, password are required." });
+      return res.status(400).json({ message: "Email, password are required." });
     }
 
     const user = await User.findOne({ email }).select("+password");
@@ -118,9 +116,7 @@ export const getProfile = asyncHandler(
       .populate("country", "name")
       .populate("state", "name")
       .populate("city", "name")
-      .populate(
-        type === "user" || type === "customer" ? "company" : ""
-      );
+      .populate(type === "user" || type === "customer" ? "company" : "");
 
     try {
       const user = await query.exec();
@@ -233,17 +229,11 @@ export const updateProfile = asyncHandler(
       if (emergency_contact_number)
         user.emergency_contact_number = emergency_contact_number;
       if (dob) user.dob = dob;
-      if (company_branch) user.company_branch = company_branch;
       if (gender) user.gender = gender;
       if (language && Array.isArray(language)) user.language = language;
       if (mother_name) user.mother_name = mother_name;
       if (father_name) user.father_name = father_name;
-      if (employment_status) user.employment_status = employment_status;
-      if (country) user.country = country;
-      if (state) user.state = state;
-      if (city) user.city = city;
       if (marital_status) user.marital_status = marital_status;
-      if (designation) user.designation = designation;
 
       const updatedProfile = await user.save();
 
