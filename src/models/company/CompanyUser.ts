@@ -1,8 +1,8 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
-export interface ICompanyCustomer extends Document {
+export interface ICompanyUser extends Document {
   company?: mongoose.Types.ObjectId;
-  customer_customer: mongoose.Types.ObjectId;
+  customer_user: mongoose.Types.ObjectId;
   uuid?: string; // Optional field
   company_branch: mongoose.Types.ObjectId;
   status: boolean;
@@ -10,9 +10,9 @@ export interface ICompanyCustomer extends Document {
   updated_at: Date;
 }
 
-const CompanyCustomerSchema: Schema<ICompanyCustomer> = new Schema(
+const CompanyUserSchema: Schema<ICompanyUser> = new Schema(
   {
-    customer_customer: {
+    customer_user: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -49,7 +49,7 @@ const CompanyCustomerSchema: Schema<ICompanyCustomer> = new Schema(
   }
 );
 
-const CompanyCustomer: Model<ICompanyCustomer> =
-  mongoose.model<ICompanyCustomer>("CompanyCustomer", CompanyCustomerSchema);
+const CompanyUser: Model<ICompanyUser> =
+  mongoose.model<ICompanyUser>("CompanyUser", CompanyUserSchema);
 
-export default CompanyCustomer;
+export default CompanyUser;
