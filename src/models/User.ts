@@ -33,13 +33,9 @@ export interface IUser extends Document {
   driver?: string;
   pets?: string;
   marital_status?: MaritalStatus;
-  country?: mongoose.Types.ObjectId;
-  state?: mongoose.Types.ObjectId;
-  city?: mongoose.Types.ObjectId;
   address?: string;
   zip_code?: number;
   gender?: Gender;
-  company_branch?: mongoose.Types.ObjectId;
   language?: mongoose.Types.ObjectId[];
   comparePassword(password: string): Promise<boolean>;
   toProfileJSON(options?: { includeLanguage?: boolean }): any;
@@ -103,29 +99,9 @@ const UserSchema: Schema<IUser> = new Schema({
     enum: Object.values(MaritalStatus),
     required: false,
   },
-  country: {
-    type: Schema.Types.ObjectId,
-    ref: Country,
-    required: false,
-  },
-  state: {
-    type: Schema.Types.ObjectId,
-    ref: State,
-    required: false,
-  },
-  city: {
-    type: Schema.Types.ObjectId,
-    ref: City,
-    required: false,
-  },
   gender: {
     type: String,
     enum: Object.values(Gender),
-    required: false,
-  },
-  company_branch: {
-    type: Schema.Types.ObjectId,
-    ref: "CompanyBranch",
     required: false,
   },
   type: {
