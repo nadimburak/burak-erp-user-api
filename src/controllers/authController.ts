@@ -107,15 +107,9 @@ export const getProfile = asyncHandler(
     // Create the base query
     const query = User.findById(_id)
       .select("-password")
-      .populate("company_branch", "name") // 👈 Populate company_branch name only;
       .populate("role", "name")
       .populate("language", "name")
-      .populate("employment_status", "name")
       .populate("marital_status", "name")
-      .populate("designation", "name")
-      .populate("country", "name")
-      .populate("state", "name")
-      .populate("city", "name")
       .populate(type === "user" || type === "customer" ? "company" : "");
 
     try {
@@ -148,12 +142,10 @@ export const updateProfile = asyncHandler(
       const {
         name,
         mobile,
-        company_branch,
         gender,
         language,
         mother_name,
         father_name,
-        employment_status,
         marital_status,
         password,
         new_password,
@@ -167,11 +159,7 @@ export const updateProfile = asyncHandler(
         pets,
         emergency_contact_number,
         legal_guardians_details,
-        designation,
         dependents,
-        country,
-        state,
-        city,
         zip_code,
         image,
         address,
