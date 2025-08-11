@@ -135,7 +135,7 @@ class App {
           const userId = verified.userId;
           user = await User.findById(userId);
         }
-        
+
         socket.data.user = user;
         next();
       } catch (err) {
@@ -154,6 +154,7 @@ class App {
         socket.join('authenticated_users');
       }
 
+  
       // Chat message handler
       socket.on('chat message', (data) => {
         if (!user) {

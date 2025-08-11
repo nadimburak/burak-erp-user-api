@@ -96,15 +96,11 @@ export const createUserChat = asyncHandler(
       // Emit the new message via Socket.io if available
       const io = req.app.get('io');
       if (io) {
-        io.to(`user_${recipient}`).emit('new_message', {
-          message: populatedMessage,
-          conversationId: `${user}_${recipient}`
-        });
 
-        // Also emit to sender for real-time update in their own client
-        io.to(`user_${user}`).emit('new_message', {
+        io.emit('chat message', {
+          from: recipient,
           message: populatedMessage,
-          conversationId: `${user}_${recipient}`
+          timestamp: new Date()
         });
       }
 
