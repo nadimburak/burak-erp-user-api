@@ -9,6 +9,8 @@ import path from 'path';
 import { Server, Socket } from 'socket.io';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 import routes from './routes';
+import { decodeToken, verifyToken } from './utils/jwt';
+import User from './models/User';
 
 // Load environment variables
 dotenv.config();
@@ -112,7 +114,7 @@ class App {
 
   private initializeSocketIO(): void {
     // Socket.io middleware for authentication
-    this.io.use((socket: Socket, next) => {
+    this.io.use(async (socket: Socket, next) => {
       const token = socket.handshake.auth.token ||
         socket.handshake.headers['authorization']?.split(' ')[1];
 
@@ -121,8 +123,20 @@ class App {
       }
 
       try {
-        const decoded = jwt.verify(token, this.JWT_SECRET);
-        socket.data.user = decoded;
+        const verified = await verifyToken(token as string);
+
+        // Check if the token is valid
+        if (!verified) {
+          return next(new Error('Authentication error: Invalid token'));
+        }
+
+        let user = null;
+        if (typeof verified !== "string" && "userId" in verified) {
+          const userId = verified.userId;
+          user = await User.findById(userId);
+        }
+        
+        socket.data.user = user;
         next();
       } catch (err) {
         return next(new Error('Authentication error: Invalid token'));
