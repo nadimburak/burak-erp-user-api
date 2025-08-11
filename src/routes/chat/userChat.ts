@@ -1,6 +1,6 @@
 import express from "express";
 import { createUserChat, getUserChat } from "../../controllers/chat/userChatController";
-import { authenticate } from "../../middlewares/auth";
+import { authenticate } from "../../middlewares/auth.middleware";
 
 const router = express.Router();
 
