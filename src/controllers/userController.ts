@@ -27,14 +27,12 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
 
     const query: any = search
       ? {
-          $or: [
-            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-            { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
-          ],
-        }
+        $or: [
+          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+          { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
+        ],
+      }
       : {};
-
-    // console.log(user, "COMPANY USER");
 
     // Apply company filter based on user type and header
     if (type !== "super_admin") {
