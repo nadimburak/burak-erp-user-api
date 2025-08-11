@@ -6,6 +6,138 @@ const asyncHandler = require("express-async-handler");
 
 const modelTitle = "User Chat";
 
+export const getAllChatList = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const user = req?.user?._id;
+      const {
+        page = "1",
+        limit = "10",
+        search = ""
+      } = req.query;
+
+      const parsedPage = Math.max(parseInt(page as string, 10), 1);
+      const parsedLimit = Math.max(parseInt(limit as string, 10), 1);
+
+      // Get distinct conversations (either as sender or recipient)
+      const conversations = await UserChat.aggregate([
+        {
+          $match: {
+            $or: [
+              { sender: user },
+              { recipient: user }
+            ],
+            ...(search ? { text: { $regex: search, $options: "i" } } : {})
+          }
+        },
+        {
+          $sort: { createdAt: -1 }
+        },
+        {
+          $group: {
+            _id: {
+              $cond: [
+                { $eq: ["$sender", user] },
+                "$recipient",
+                "$sender"
+              ]
+            },
+            lastMessage: { $first: "$$ROOT" },
+            unreadCount: {
+              $sum: {
+                $cond: [
+                  { 
+                    $and: [
+                      { $eq: ["$recipient", user] },
+                      { $ne: ["$status", "read"] }
+                    ]
+                  },
+                  1,
+                  0
+                ]
+              }
+            }
+          }
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "_id",
+            foreignField: "_id",
+            as: "userDetails"
+          }
+        },
+        {
+          $unwind: "$userDetails"
+        },
+        {
+          $project: {
+            _id: 0,
+            userId: "$_id",
+            name: "$userDetails.name",
+            email: "$userDetails.email",
+            image: "$userDetails.image",
+            lastMessage: {
+              text: "$lastMessage.text",
+              createdAt: "$lastMessage.createdAt",
+              status: "$lastMessage.status"
+            },
+            unreadCount: 1
+          }
+        },
+        {
+          $skip: (parsedPage - 1) * parsedLimit
+        },
+        {
+          $limit: parsedLimit
+        }
+      ]);
+
+      // Get total count of distinct conversations
+      const totalConversations = await UserChat.aggregate([
+        {
+          $match: {
+            $or: [
+              { sender: user },
+              { recipient: user }
+            ]
+          }
+        },
+        {
+          $group: {
+            _id: {
+              $cond: [
+                { $eq: ["$sender", user] },
+                "$recipient",
+                "$sender"
+              ]
+            }
+          }
+        },
+        {
+          $count: "total"
+        }
+      ]);
+
+      const total = totalConversations[0]?.total || 0;
+
+      res.status(200).json({
+        success: true,
+        data: conversations,
+        total,
+        currentPage: parsedPage,
+        totalPages: Math.ceil(total / parsedLimit),
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: `Error fetching ${modelTitle} list.`,
+        error: error instanceof Error ? error.message : error
+      });
+    }
+  }
+);
+
 export const getUserChat = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     try {
