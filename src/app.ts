@@ -1,11 +1,14 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import path from 'path';
 import dotenv from 'dotenv';
+import express, { Application, NextFunction, Request, Response } from 'express';
+import { createServer } from 'http';
+import jwt from 'jsonwebtoken';
 import mongoose, { ConnectOptions, Model } from 'mongoose';
-import routes from './routes';
+import path from 'path';
+import { Server, Socket } from 'socket.io';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
+import routes from './routes';
 
 // Load environment variables
 dotenv.config();
@@ -16,15 +19,27 @@ interface ITest extends mongoose.Document {
   createdAt: Date;
 }
 
+
 class App {
   public app: Application;
+  public server: ReturnType<typeof createServer>;
+  public io: Server;
   private readonly MONGO_URI: string;
   private isDBConnected: boolean;
   private TestModel: Model<ITest>;
+  private readonly JWT_SECRET: string;
 
   constructor() {
     this.app = express();
-    this.MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/';
+    this.server = createServer(this.app);
+    this.io = new Server(this.server, {
+      cors: {
+        origin: process.env.CORS_ORIGIN || '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE']
+      }
+    });
+    this.MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/defaultdb';
+    this.JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
     this.isDBConnected = false;
 
     // Initialize Test model schema
@@ -38,6 +53,7 @@ class App {
     this.initializeDatabase();
     this.initializeViewEngine();
     this.initializeRoutes();
+    this.initializeSocketIO();
     this.initializeErrorHandling();
   }
 
@@ -94,6 +110,74 @@ class App {
     this.app.use('/', routes);
   }
 
+  private initializeSocketIO(): void {
+    // Socket.io middleware for authentication
+    this.io.use((socket: Socket, next) => {
+      const token = socket.handshake.auth.token ||
+        socket.handshake.headers['authorization']?.split(' ')[1];
+
+      if (!token) {
+        return next(new Error('Authentication error: No token provided'));
+      }
+
+      try {
+        const decoded = jwt.verify(token, this.JWT_SECRET);
+        socket.data.user = decoded;
+        next();
+      } catch (err) {
+        return next(new Error('Authentication error: Invalid token'));
+      }
+    });
+
+    // Connection handler
+    this.io.on('connection', (socket: Socket) => {
+      const user = socket.data.user;
+      console.log(`User ${user?.id} connected with socket ID: ${socket.id}`);
+
+      // Join user to their personal room
+      if (user?.id) {
+        socket.join(`user_${user.id}`);
+        socket.join('authenticated_users');
+      }
+
+      // Chat message handler
+      socket.on('chat message', (data) => {
+        if (!user) {
+          return socket.emit('error', 'Unauthorized');
+        }
+
+        console.log(`Message from ${user.id}:`, data);
+
+        // Broadcast to all connected clients
+        this.io.emit('chat message', {
+          from: user.id,
+          message: data.message,
+          timestamp: new Date()
+        });
+
+        // Or send to specific user/room
+        if (data.recipientId) {
+          socket.to(`user_${data.recipientId}`).emit('private message', {
+            from: user.id,
+            message: data.message,
+            timestamp: new Date()
+          });
+        }
+      });
+
+      // Disconnection handler
+      socket.on('disconnect', () => {
+        console.log(`User ${user?.id} disconnected`);
+        if (user?.id) {
+          socket.leave(`user_${user.id}`);
+        }
+      });
+    });
+
+    // Make io accessible in routes
+    this.app.set('io', this.io);
+  }
+
   private initializeErrorHandling(): void {
     this.app.use(notFoundHandler);
     this.app.use(errorHandler);
@@ -136,12 +220,12 @@ class App {
   }
 
   public start(port: number): void {
-    this.app.listen(port, () => {
+    this.server.listen(port, () => {
       console.log(`Server running on http://localhost:${port}`);
+      console.log(`WebSocket server ready at ws://localhost:${port}`);
     });
   }
 
-  // Add a method to check database status
   public getDBStatus(): boolean {
     return this.isDBConnected;
   }
