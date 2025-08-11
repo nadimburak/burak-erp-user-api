@@ -14,12 +14,10 @@ const modelTitle = "User";
 
 export const signIn = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { email, password, } = req.body;
+    const { email, password } = req.body;
 
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email, password are required." });
+      return res.status(400).json({ message: "Email, password are required." });
     }
 
     const user = await User.findOne({ email }).select("+password");
@@ -61,21 +59,6 @@ export const signUp = asyncHandler(async (req: Request, res: Response) => {
   const user: IUser = new User({ name, email, password, type });
   await user.save();
 
-  // ✅ Auto-create CompanyCustomer if type is 'customer'
-  if (type === "customer") {
-    // const defaultCompany = await Company.findOne(); // You can change logic here
-    // if (!defaultCompany) {
-    //   return res.status(400).json({ message: "Default company not found." });
-    // }
-
-    const newCompanyCustomer = new CompanyCustomer({
-      customer_user: user._id,
-      status: true,
-    });
-
-    await newCompanyCustomer.save();
-  }
-
   // ✅ Generate Access Token
   const accessToken = await generateToken((user._id as string).toString());
 
@@ -109,18 +92,10 @@ export const getProfile = asyncHandler(
     // Create the base query
     const query = User.findById(_id)
       .select("-password")
-      .populate("company_branch", "name") // 👈 Populate company_branch name only;
       .populate("role", "name")
       .populate("language", "name")
-      .populate("employment_status", "name")
       .populate("marital_status", "name")
-      .populate("designation", "name")
-      .populate("country", "name")
-      .populate("state", "name")
-      .populate("city", "name")
-      .populate(
-        type === "user" || type === "customer" ? "company" : ""
-      );
+      .populate(type === "user" || type === "customer" ? "company" : "");
 
     try {
       const user = await query.exec();
@@ -152,12 +127,10 @@ export const updateProfile = asyncHandler(
       const {
         name,
         mobile,
-        company_branch,
         gender,
         language,
         mother_name,
         father_name,
-        employment_status,
         marital_status,
         password,
         new_password,
@@ -171,11 +144,7 @@ export const updateProfile = asyncHandler(
         pets,
         emergency_contact_number,
         legal_guardians_details,
-        designation,
         dependents,
-        country,
-        state,
-        city,
         zip_code,
         image,
         address,
@@ -233,17 +202,11 @@ export const updateProfile = asyncHandler(
       if (emergency_contact_number)
         user.emergency_contact_number = emergency_contact_number;
       if (dob) user.dob = dob;
-      if (company_branch) user.company_branch = company_branch;
       if (gender) user.gender = gender;
       if (language && Array.isArray(language)) user.language = language;
       if (mother_name) user.mother_name = mother_name;
       if (father_name) user.father_name = father_name;
-      if (employment_status) user.employment_status = employment_status;
-      if (country) user.country = country;
-      if (state) user.state = state;
-      if (city) user.city = city;
       if (marital_status) user.marital_status = marital_status;
-      if (designation) user.designation = designation;
 
       const updatedProfile = await user.save();
 
