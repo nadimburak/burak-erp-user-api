@@ -139,7 +139,7 @@ export const createUser = async (req: AuthRequest, res: Response) => {
 export const updateUser = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, email, password, role, status, image, type } = req.body;
+    const { name, email, role, status, image, type } = req.body;
     const { company } = req.headers;
 
     const updatedData: Partial<IUser> = {
@@ -156,10 +156,10 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       updatedData.company = [new mongoose.Types.ObjectId(company as string)]; // Convert to ObjectId
     }
 
-    if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      updatedData.password = hashedPassword; // Update password only if provided
-    }
+    // if (password) {
+    //   const hashedPassword = await bcrypt.hash(password, 10);
+    //   updatedData.password = hashedPassword; // Update password only if provided
+    // }
 
     const updatedUser = await User.findByIdAndUpdate(
       id,
