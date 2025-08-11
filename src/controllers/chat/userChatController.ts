@@ -176,15 +176,21 @@ export const getUserChat = asyncHandler(
       const parsedLimit = Math.max(parseInt(limit as string, 10), 1);
       const sortOrder = order === "asc" ? 1 : -1;
 
+      // Base query to get messages between the two users
+      const baseQuery = {
+        $or: [
+          { sender: user, recipient: userId },
+          { sender: userId, recipient: user }
+        ]
+      };
+
+      // If search is provided, add text search to the query
       const query: any = search
         ? {
-          $or: [
-            { text: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-            { sender: user, recipient: userId },
-            { sender: userId, recipient: user }
-          ],
-        }
-        : {};
+            ...baseQuery,
+            text: { $regex: search, $options: "i" }
+          }
+        : baseQuery;
 
       // Fetch data with sorting and pagination
       const data = await UserChat.find(query)
