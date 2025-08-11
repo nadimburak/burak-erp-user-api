@@ -14,7 +14,7 @@ export const getUserChat = asyncHandler(
         page = "1",
         limit = "10",
         sortBy = "created_at", // Changed default sort to createdAt
-        order = "desc", // Changed default order to show newest first
+        order = "asc", // Changed default order to show newest first
         search = "",
         userId
       } = req.query;
