@@ -19,20 +19,29 @@ export const getAllChatList = asyncHandler(
       const parsedPage = Math.max(parseInt(page as string, 10), 1);
       const parsedLimit = Math.max(parseInt(limit as string, 10), 1);
 
-      // Get distinct conversations (either as sender or recipient)
+      // Base match conditions
+      const matchConditions: any = {
+        $or: [
+          { sender: user },
+          { recipient: user }
+        ]
+      };
+
+      // Add search condition if provided
+      if (search) {
+        matchConditions.text = { $regex: search, $options: "i" };
+      }
+
+      // Get distinct conversations with last message
       const conversations = await UserChat.aggregate([
         {
-          $match: {
-            $or: [
-              { sender: user },
-              { recipient: user }
-            ],
-            ...(search ? { text: { $regex: search, $options: "i" } } : {})
-          }
+          $match: matchConditions
         },
+        // Sort all messages by created_at descending first
         {
-          $sort: { createdAt: -1 }
+          $sort: { created_at: -1 }
         },
+        // Group by conversation partner and get last message
         {
           $group: {
             _id: {
@@ -56,9 +65,12 @@ export const getAllChatList = asyncHandler(
                   0
                 ]
               }
-            }
+            },
+            // Keep track of total messages for this conversation
+            totalMessages: { $sum: 1 }
           }
         },
+        // Lookup user details
         {
           $lookup: {
             from: "users",
@@ -70,21 +82,30 @@ export const getAllChatList = asyncHandler(
         {
           $unwind: "$userDetails"
         },
+        // Project the final structure
         {
           $project: {
-            _id: 0,
             userId: "$_id",
             name: "$userDetails.name",
             email: "$userDetails.email",
             image: "$userDetails.image",
             lastMessage: {
+              _id: "$lastMessage._id",
               text: "$lastMessage.text",
-              createdAt: "$lastMessage.createdAt",
-              status: "$lastMessage.status"
+              created_at: "$lastMessage.created_at",
+              status: "$lastMessage.status",
+              sender: "$lastMessage.sender",
+              recipient: "$lastMessage.recipient"
             },
-            unreadCount: 1
+            unreadCount: 1,
+            totalMessages: 1
           }
         },
+        // Sort by last message timestamp (newest first)
+        {
+          $sort: { "lastMessage.created_at": -1 }
+        },
+        // Apply pagination
         {
           $skip: (parsedPage - 1) * parsedLimit
         },
@@ -96,12 +117,7 @@ export const getAllChatList = asyncHandler(
       // Get total count of distinct conversations
       const totalConversations = await UserChat.aggregate([
         {
-          $match: {
-            $or: [
-              { sender: user },
-              { recipient: user }
-            ]
-          }
+          $match: matchConditions
         },
         {
           $group: {
@@ -145,7 +161,7 @@ export const getUserChat = asyncHandler(
       const {
         page = "1",
         limit = "10",
-        sortBy = "created_at", // Changed default sort to createdAt
+        sortBy = "created_at", // Changed default sort to created_at
         order = "asc", // Changed default order to show newest first
         search = "",
         userId
