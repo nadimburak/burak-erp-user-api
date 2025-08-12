@@ -252,7 +252,8 @@ export const createUserChat = asyncHandler(
       if (io) {
 
         io.emit('chat message', {
-          from: recipient,
+          from: user,
+          recipientId: recipient,
           message: populatedMessage,
           timestamp: new Date()
         });
