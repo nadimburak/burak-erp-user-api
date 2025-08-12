@@ -30,8 +30,6 @@ export interface IUser extends Document {
   driver?: string;
   pets?: string;
   marital_status?: MaritalStatus;
-  address?: string;
-  zip_code?: number;
   gender?: Gender;
   language?: mongoose.Types.ObjectId[];
   comparePassword(password: string): Promise<boolean>;
@@ -80,14 +78,6 @@ const UserSchema: Schema<IUser> = new Schema({
   },
   dependents: {
     type: Number,
-    required: false,
-  },
-  zip_code: {
-    type: Number,
-    required: false,
-  },
-  address: {
-    type: String,
     required: false,
   },
 
