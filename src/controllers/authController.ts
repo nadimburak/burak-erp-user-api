@@ -1,12 +1,11 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import nodemailer from "nodemailer";
+import { type } from "os";
 import { AuthRequest, tokenBlacklist } from "../interfaces/Auth";
 import Company from "../models/company/Company";
 import User, { IUser } from "../models/User";
 import { generateToken, verifyToken } from "../utils/jwt";
-import CompanyCustomer from "../models/company/CompanyCustomer";
-import { type } from "os";
 
 const asyncHandler = require("express-async-handler");
 
