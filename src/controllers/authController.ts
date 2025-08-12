@@ -144,9 +144,7 @@ export const updateProfile = asyncHandler(
         emergency_contact_number,
         legal_guardians_details,
         dependents,
-        zip_code,
         image,
-        address,
       } = req.body;
 
       const user = await User.findById(req.user._id);
