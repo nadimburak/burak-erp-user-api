@@ -1,18 +1,20 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
-export interface ICompanyCustomer extends Document {
+export interface ICompanyUser extends Document {
   company?: mongoose.Types.ObjectId;
-  customer_customer: mongoose.Types.ObjectId;
+  customer_user: mongoose.Types.ObjectId;
   uuid?: string; // Optional field
   company_branch: mongoose.Types.ObjectId;
+  designation?: mongoose.Types.ObjectId;
+  employment_status?: mongoose.Types.ObjectId;
   status: boolean;
   created_at: Date;
   updated_at: Date;
 }
 
-const CompanyCustomerSchema: Schema<ICompanyCustomer> = new Schema(
+const CompanyUserSchema: Schema<ICompanyUser> = new Schema(
   {
-    customer_customer: {
+    customer_user: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -29,6 +31,16 @@ const CompanyCustomerSchema: Schema<ICompanyCustomer> = new Schema(
     company_branch: {
       type: Schema.Types.ObjectId,
       ref: "CompanyBranch",
+      required: false,
+    },
+    designation: {
+      type: Schema.Types.ObjectId,
+      ref: "Designation",
+      required: false,
+    },
+    employment_status: {
+      type: Schema.Types.ObjectId,
+      ref: "EmploymentStatus",
       required: false,
     },
     status: {
@@ -49,7 +61,7 @@ const CompanyCustomerSchema: Schema<ICompanyCustomer> = new Schema(
   }
 );
 
-const CompanyCustomer: Model<ICompanyCustomer> =
-  mongoose.model<ICompanyCustomer>("CompanyCustomer", CompanyCustomerSchema);
+const CompanyUser: Model<ICompanyUser> =
+  mongoose.model<ICompanyUser>("CompanyUser", CompanyUserSchema);
 
-export default CompanyCustomer;
+export default CompanyUser;

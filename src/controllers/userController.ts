@@ -27,14 +27,12 @@ export const getUsers = async (req: AuthRequest, res: Response) => {
 
     const query: any = search
       ? {
-          $or: [
-            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-            { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
-          ],
-        }
+        $or: [
+          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+          { email: { $regex: search, $options: "i" } }, // Case-insensitive match for email
+        ],
+      }
       : {};
-
-    // console.log(user, "COMPANY USER");
 
     // Apply company filter based on user type and header
     if (type !== "super_admin") {
@@ -139,7 +137,7 @@ export const createUser = async (req: AuthRequest, res: Response) => {
 export const updateUser = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, email, password, role, status, image, type } = req.body;
+    const { name, email, role, status, image, type } = req.body;
     const { company } = req.headers;
 
     const updatedData: Partial<IUser> = {
@@ -156,10 +154,10 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       updatedData.company = [new mongoose.Types.ObjectId(company as string)]; // Convert to ObjectId
     }
 
-    if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      updatedData.password = hashedPassword; // Update password only if provided
-    }
+    // if (password) {
+    //   const hashedPassword = await bcrypt.hash(password, 10);
+    //   updatedData.password = hashedPassword; // Update password only if provided
+    // }
 
     const updatedUser = await User.findByIdAndUpdate(
       id,
