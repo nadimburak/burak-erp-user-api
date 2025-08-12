@@ -55,7 +55,7 @@ export const getAllChatList = asyncHandler(
             unreadCount: {
               $sum: {
                 $cond: [
-                  { 
+                  {
                     $and: [
                       { $eq: ["$recipient", user] },
                       { $ne: ["$status", "read"] }
@@ -187,9 +187,9 @@ export const getUserChat = asyncHandler(
       // If search is provided, add text search to the query
       const query: any = search
         ? {
-            ...baseQuery,
-            text: { $regex: search, $options: "i" }
-          }
+          ...baseQuery,
+          text: { $regex: search, $options: "i" }
+        }
         : baseQuery;
 
       // Fetch data with sorting and pagination
@@ -251,7 +251,7 @@ export const createUserChat = asyncHandler(
       const io = req.app.get('io');
       if (io) {
 
-        io.emit('chat message', {
+        io.to(recipient).emit('chat message', {
           from: user,
           recipientId: recipient,
           message: populatedMessage,

@@ -154,7 +154,7 @@ class App {
         socket.join('authenticated_users');
       }
 
-  
+
       // Chat message handler
       socket.on('chat message', (data) => {
         if (!user) {
@@ -162,13 +162,6 @@ class App {
         }
 
         console.log(`Message from ${user.id}:`, data);
-
-        // Broadcast to all connected clients
-        this.io.emit('chat message', {
-          from: user.id,
-          message: data.message,
-          timestamp: new Date()
-        });
 
         // Or send to specific user/room
         if (data.recipientId) {
