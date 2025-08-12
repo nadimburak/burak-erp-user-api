@@ -193,8 +193,6 @@ export const updateProfile = asyncHandler(
       if (pets) user.pets = pets;
       if (dependents) user.dependents = dependents;
       if (ethnicity) user.ethnicity = ethnicity;
-      if (address) user.address = address;
-      if (zip_code) user.zip_code = zip_code;
       if (sexuality) user.sexuality = sexuality;
       if (legal_guardians_details)
         user.legal_guardians_details = legal_guardians_details;
