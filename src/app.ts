@@ -153,33 +153,7 @@ class App {
         socket.join(`user_${user.id}`);
         socket.join('authenticated_users');
       }
-
-  
-      // Chat message handler
-      socket.on('chat message', (data) => {
-        if (!user) {
-          return socket.emit('error', 'Unauthorized');
-        }
-
-        console.log(`Message from ${user.id}:`, data);
-
-        // Broadcast to all connected clients
-        this.io.emit('chat message', {
-          from: user.id,
-          message: data.message,
-          timestamp: new Date()
-        });
-
-        // Or send to specific user/room
-        if (data.recipientId) {
-          socket.to(`user_${data.recipientId}`).emit('private message', {
-            from: user.id,
-            message: data.message,
-            timestamp: new Date()
-          });
-        }
-      });
-
+      
       // Disconnection handler
       socket.on('disconnect', () => {
         console.log(`User ${user?.id} disconnected`);
