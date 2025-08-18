@@ -2,16 +2,13 @@ import bcrypt from "bcrypt";
 import mongoose, { Document, Model, Schema } from "mongoose";
 import Company from "./company/Company";
 import Role from "./Role";
-import City from "./location/City";
-import State from "./location/State";
-import Country from "./location/Country";
 import { Gender } from "../enums/gender";
 import { MaritalStatus } from "../enums/maritalStatus";
 
 export type UserType = "user" | "customer" | "super_admin";
 
 export interface IUser extends Document {
-  company: mongoose.Types.ObjectId;
+  company: mongoose.Types.ObjectId[];
   role: mongoose.Types.ObjectId;
   name: string;
   mobile?: number;
@@ -32,23 +29,15 @@ export interface IUser extends Document {
   sexuality?: string;
   driver?: string;
   pets?: string;
-  designation?: mongoose.Types.ObjectId;
   marital_status?: MaritalStatus;
-  country?: mongoose.Types.ObjectId;
-  state?: mongoose.Types.ObjectId;
-  city?: mongoose.Types.ObjectId;
-  address?: string;
-  zip_code?: number;
-  employment_status?: mongoose.Types.ObjectId;
   gender?: Gender;
-  company_branch?: mongoose.Types.ObjectId;
   language?: mongoose.Types.ObjectId[];
   comparePassword(password: string): Promise<boolean>;
   toProfileJSON(options?: { includeLanguage?: boolean }): any;
 }
 
 const UserSchema: Schema<IUser> = new Schema({
-  company: { type: Schema.Types.ObjectId, ref: Company, required: false },
+  company: [{ type: Schema.Types.ObjectId, ref: Company, required: false }],
   role: { type: Schema.Types.ObjectId, ref: Role, required: false },
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -91,52 +80,15 @@ const UserSchema: Schema<IUser> = new Schema({
     type: Number,
     required: false,
   },
-  zip_code: {
-    type: Number,
-    required: false,
-  },
-  address: {
-    type: String,
-    required: false,
-  },
-  designation: {
-    type: Schema.Types.ObjectId,
-    ref: "Designation",
-    required: false,
-  },
+
   marital_status: {
     type: String,
     enum: Object.values(MaritalStatus),
     required: false,
   },
-  country: {
-    type: Schema.Types.ObjectId,
-    ref: Country,
-    required: false,
-  },
-  state: {
-    type: Schema.Types.ObjectId,
-    ref: State,
-    required: false,
-  },
-  city: {
-    type: Schema.Types.ObjectId,
-    ref: City,
-    required: false,
-  },
-  employment_status: {
-    type: Schema.Types.ObjectId,
-    ref: "EmploymentStatus",
-    required: false,
-  },
   gender: {
     type: String,
     enum: Object.values(Gender),
-    required: false,
-  },
-  company_branch: {
-    type: Schema.Types.ObjectId,
-    ref: "CompanyBranch",
     required: false,
   },
   type: {

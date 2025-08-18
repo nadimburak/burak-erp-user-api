@@ -1,43 +1,44 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import path from 'path';
 import dotenv from 'dotenv';
+import express, { Application, NextFunction, Request, Response } from 'express';
+import { createServer } from 'http';
 import mongoose, { ConnectOptions, Model } from 'mongoose';
-import routes from './routes';
+import path from 'path';
+import { Server, Socket } from 'socket.io';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
+import routes from './routes';
+import { verifyToken } from './utils/jwt';
+import User from './models/User';
+import TestModel from './models/Test';
 
 // Load environment variables
 dotenv.config();
 
-// Simple interface for test model
-interface ITest extends mongoose.Document {
-  message: string;
-  createdAt: Date;
-}
-
 class App {
   public app: Application;
+  public server: ReturnType<typeof createServer>;
+  public io: Server;
   private readonly MONGO_URI: string;
   private isDBConnected: boolean;
-  private TestModel: Model<ITest>;
 
   constructor() {
     this.app = express();
-    this.MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/';
-    this.isDBConnected = false;
-
-    // Initialize Test model schema
-    const testSchema = new mongoose.Schema({
-      message: { type: String, default: 'Hello MongoDB!' },
-      createdAt: { type: Date, default: Date.now }
+    this.server = createServer(this.app);
+    this.io = new Server(this.server, {
+      cors: {
+        origin: process.env.CORS_ORIGIN || '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE']
+      }
     });
-    this.TestModel = mongoose.model<ITest>('Test', testSchema);
+    this.MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/defaultdb';
+    this.isDBConnected = false;
 
     this.initializeMiddlewares();
     this.initializeDatabase();
     this.initializeViewEngine();
     this.initializeRoutes();
+    this.initializeSocketIO();
     this.initializeErrorHandling();
   }
 
@@ -71,11 +72,11 @@ class App {
       (async () => {
         try {
           // Create a test document
-          const testDoc = new this.TestModel();
+          const testDoc = new TestModel();
           await testDoc.save();
 
           // Retrieve all test documents
-          const docs = await this.TestModel.find().sort({ createdAt: -1 }).limit(10);
+          const docs = await TestModel.find().sort({ createdAt: -1 }).limit(10);
 
           res.json({
             status: 'success',
@@ -92,6 +93,61 @@ class App {
 
     // Main routes
     this.app.use('/', routes);
+  }
+
+  private initializeSocketIO(): void {
+    // Socket.io middleware for authentication
+    this.io.use(async (socket: Socket, next) => {
+      const token = socket.handshake.auth.token ||
+        socket.handshake.headers['authorization']?.split(' ')[1];
+
+      if (!token) {
+        return next(new Error('Authentication error: No token provided'));
+      }
+
+      try {
+        const verified = await verifyToken(token as string);
+
+        // Check if the token is valid
+        if (!verified) {
+          return next(new Error('Authentication error: Invalid token'));
+        }
+
+        let user = null;
+        if (typeof verified !== "string" && "userId" in verified) {
+          const userId = verified.userId;
+          user = await User.findById(userId);
+        }
+
+        socket.data.user = user;
+        next();
+      } catch (err) {
+        return next(new Error('Authentication error: Invalid token'));
+      }
+    });
+
+    // Connection handler
+    this.io.on('connection', (socket: Socket) => {
+      const user = socket.data.user;
+      console.log(`User ${user?.id} connected with socket ID: ${socket.id}`);
+
+      // Join user to their personal room
+      if (user?.id) {
+        socket.join(`user_${user.id}`);
+        socket.join('authenticated_users');
+      }
+      
+      // Disconnection handler
+      socket.on('disconnect', () => {
+        console.log(`User ${user?.id} disconnected`);
+        if (user?.id) {
+          socket.leave(`user_${user.id}`);
+        }
+      });
+    });
+
+    // Make io accessible in routes
+    this.app.set('io', this.io);
   }
 
   private initializeErrorHandling(): void {
@@ -136,12 +192,12 @@ class App {
   }
 
   public start(port: number): void {
-    this.app.listen(port, () => {
+    this.server.listen(port, () => {
       console.log(`Server running on http://localhost:${port}`);
+      console.log(`WebSocket server ready at ws://localhost:${port}`);
     });
   }
 
-  // Add a method to check database status
   public getDBStatus(): boolean {
     return this.isDBConnected;
   }

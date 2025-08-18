@@ -1,9 +1,10 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import Permission from "../models/Permission";
+import { AuthRequest } from "../interfaces/Auth";
 
 const modelTitle = "Permission";
 
-export const getAllPermissions = async (req: Request, res: Response) => {
+export const getAllPermissions = async (req: AuthRequest, res: Response) => {
   try {
     const data = await Permission.find({});
     res.status(200).json(data);
@@ -12,7 +13,7 @@ export const getAllPermissions = async (req: Request, res: Response) => {
   }
 };
 
-export const getPermissions = async (req: Request, res: Response) => {
+export const getPermissions = async (req: AuthRequest, res: Response) => {
   try {
     const {
       page = "1", // Default to page 1 if not provided
@@ -23,6 +24,7 @@ export const getPermissions = async (req: Request, res: Response) => {
     } = req.query;
 
     const { company } = req.headers;
+    const { type } = req.user;
 
     // Parse and validate page and limit
     const parsedPage = Math.max(parseInt(page as string, 10), 1); // Minimum value 1
@@ -31,16 +33,29 @@ export const getPermissions = async (req: Request, res: Response) => {
 
     const query: any = search
       ? {
-        $or: [
-          { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
-        ],
-      }
+          $or: [
+            { name: { $regex: search, $options: "i" } }, // Case-insensitive match for name
+          ],
+        }
       : {};
 
-    if (company) {
-      query.company = company; // Filter by company if provided
+    // Apply company filter based on user type and header
+    if (type !== "super_admin") {
+      if (company) {
+        query.company = company;
+      } else {
+        res.status(200).json({
+          data: [],
+          total: 0,
+          currentPage: 1,
+          totalPages: 0,
+        });
+        return;
+      }
     } else {
-      query.company = null;
+      if (company) {
+        query.company = company;
+      }
     }
 
     // Fetch locations with sorting and pagination
@@ -64,7 +79,7 @@ export const getPermissions = async (req: Request, res: Response) => {
   }
 };
 
-export const getPermission = async (req: Request, res: Response) => {
+export const getPermission = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const data = await Permission.findById(id);
@@ -79,10 +94,15 @@ export const getPermission = async (req: Request, res: Response) => {
   }
 };
 
-export const createPermission = async (req: Request, res: Response) => {
+export const createPermission = async (req: AuthRequest, res: Response) => {
   try {
+    const { company } = req?.headers;
     const { name, status } = req.body;
-    const newData = new Permission({ name, status });
+    const newData = new Permission({
+      company: company, // Use the company from headers
+      name,
+      status,
+    });
 
     await newData.save();
     res
@@ -93,7 +113,7 @@ export const createPermission = async (req: Request, res: Response) => {
   }
 };
 
-export const updatePermission = async (req: Request, res: Response) => {
+export const updatePermission = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { name, status } = req.body;
@@ -117,7 +137,7 @@ export const updatePermission = async (req: Request, res: Response) => {
   }
 };
 
-export const deletePermission = async (req: Request, res: Response) => {
+export const deletePermission = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
