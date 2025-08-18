@@ -32,6 +32,8 @@ export const signIn = asyncHandler(async (req: Request, res: Response) => {
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials." });
     }
+    console.log(user._id);
+    
 
     const accessToken = await generateToken(user?._id as string);
 
