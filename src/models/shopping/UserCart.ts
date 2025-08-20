@@ -1,4 +1,6 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
+import Product from "../shop/Product";
+import User from "../User";
 
 // Interface
 export interface IUserCart extends Document {
@@ -14,12 +16,12 @@ const UserCartSchema: Schema<IUserCart> = new Schema(
     {
         user: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
+            ref: User,
             required: true,
         },
         product: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Product",
+            ref: Product,
             required: true,
         },
         quantity: {

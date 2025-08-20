@@ -5,55 +5,63 @@ import UserCart, { IUserCart } from "../../models/shopping/UserCart";
 
 const modelTitle = "User Cart";
 
-//for only user type
 export const getUserCarts = async (req: AuthRequest, res: Response) => {
   try {
     const {
-      page = "1", // Default to page 1 if not provided
-      limit = "10", // Default to limit 10 if not provided
-      sortBy = "name", // Default sorting field
-      order = "asc", // Default order
+      page = "1",
+      limit = "10",
+      sortBy = "createdAt", // Changed default to something more relevant for carts
+      order = "desc", // Changed default to show newest first
       search = "",
     } = req.query;
 
-    const { company } = req.headers;
     const { _id } = req.user;
 
     // Parse and validate page and limit
-    const parsedPage = Math.max(parseInt(page as string, 10), 1); // Minimum value 1
-    const parsedLimit = Math.max(parseInt(limit as string, 10), 1); // Minimum value 1
-    const sortOrder = order === "asc" ? 1 : -1; // Convert order to MongoDB format
+    const parsedPage = Math.max(parseInt(page as string, 10), 1);
+    const parsedLimit = Math.max(parseInt(limit as string, 10), 1);
+    const sortOrder = order === "asc" ? 1 : -1;
 
-    const query: any = search
-      ? {
-      }
-      : {};
-
-    if (_id) {
-      query.user = _id;
+    // Build the query - only show carts for the authenticated user
+    const query: any = {
+      user: new mongoose.Types.ObjectId(_id as string)
+    };
+    
+    // Add search functionality if needed (search by product name)
+    if (search) {
+      query.$or = [
+        { 'product.name': { $regex: search, $options: 'i' } }
+      ];
     }
 
     // Fetch data with pagination, sorting, and filtering
     const data = await UserCart.find(query)
-      .populate("user", "name")
-      .populate("product", "name")
+      .populate("user", "name email") // Added email for more user info
+      .populate({
+        path: "product",
+        select: "name price image", // Added more product fields
+        match: search ? { name: { $regex: search, $options: 'i' } } : {}
+      })
       .sort({ [sortBy as string]: sortOrder })
       .skip((parsedPage - 1) * parsedLimit)
       .limit(parsedLimit);
 
-    // Count total documents
+    // Filter out documents where product doesn't match search (if search is used)
+    const filteredData = search ? data.filter(item => item.product !== null) : data;
+
+    // Count total documents that match the query
     const totalData = await UserCart.countDocuments(query);
 
-    // Send the response
     res.status(200).json({
-      data,
+      data: filteredData,
       total: totalData,
       currentPage: parsedPage,
       totalPages: Math.ceil(totalData / parsedLimit),
+      hasNext: parsedPage < Math.ceil(totalData / parsedLimit),
+      hasPrev: parsedPage > 1,
     });
-    return;
   } catch (error) {
-    res.status(500).json({ message: `Error ${modelTitle}.`, error });
+    res.status(500).json({ message: `Error fetching ${modelTitle}.`, error });
   }
 };
 
