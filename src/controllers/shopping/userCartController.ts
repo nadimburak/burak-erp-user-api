@@ -26,7 +26,7 @@ export const getUserCarts = async (req: AuthRequest, res: Response) => {
     const query: any = {
       user: new mongoose.Types.ObjectId(_id as string)
     };
-    
+
     // Add search functionality if needed (search by product name)
     if (search) {
       query.$or = [
@@ -82,21 +82,22 @@ export const createUserCart = async (req: AuthRequest, res: Response) => {
         data: existingData,
         message: `${modelTitle} quantity updated successfully.`
       });
+    } else {
+      // Create new cart item if it doesn't exist
+      const newData: IUserCart = new UserCart({
+        product: product,
+        quantity: quantity,
+        user: new mongoose.Types.ObjectId(_id as string)
+      });
+
+      await newData.save();
+
+      res.status(201).json({
+        data: newData,
+        message: `${modelTitle} created successfully.`
+      });
     }
 
-    // Create new cart item if it doesn't exist
-    const newData: IUserCart = new UserCart({
-      product: product,
-      quantity: quantity,
-      user: new mongoose.Types.ObjectId(_id as string)
-    });
-
-    await newData.save();
-
-    res.status(201).json({
-      data: newData,
-      message: `${modelTitle} created successfully.`
-    });
   } catch (error) {
     res.status(500).json({
       message: `Error creating ${modelTitle}.`,
@@ -119,3 +120,19 @@ export const deleteUserCart = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: `Error deleting ${modelTitle}.`, error });
   }
 };
+
+export const clearUserCart = async (req: AuthRequest, res: Response) => {
+  try {
+    const { _id } = req.user;
+
+    const deletedData = await UserCart.findOneAndDelete({ user: _id });
+    if (!deletedData) {
+      res.status(404).json({ message: `${modelTitle} not found.` });
+    }
+
+    res.status(200).json({ message: `${modelTitle} deleted successfully.` });
+  } catch (error) {
+    res.status(500).json({ message: `Error deleting ${modelTitle}.`, error });
+  }
+};
+
