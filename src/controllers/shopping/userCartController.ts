@@ -51,10 +51,13 @@ export const getUserCarts = async (req: AuthRequest, res: Response) => {
 
     // Count total documents that match the query
     const totalData = await UserCart.countDocuments(query);
+    // Calculate total quantity
+    const total_quantity = filteredData.reduce((sum, item) => sum + item.quantity, 0);
 
     res.status(200).json({
       data: filteredData,
       total: totalData,
+      total_quantity: total_quantity,
       currentPage: parsedPage,
       totalPages: Math.ceil(totalData / parsedLimit),
       hasNext: parsedPage < Math.ceil(totalData / parsedLimit),
