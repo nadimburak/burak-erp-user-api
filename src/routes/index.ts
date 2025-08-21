@@ -17,6 +17,7 @@ import roleRoutes from "./roles";
 import userRoutes from "./users";
 import { authenticate } from "../middlewares/auth.middleware";
 import userChatRoutes from "./chat/userChat";
+import userCartRoutes from "./shopping/userCart";
 
 const app = express();
 
@@ -54,6 +55,10 @@ app.use("/catalog", [
 
 app.use("/chat", [
   userChatRoutes,
+]);
+
+app.use("/shopping", [
+  userCartRoutes,
 ]);
 
 // GET /catalog/genders

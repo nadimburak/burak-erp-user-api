@@ -1,0 +1,4 @@
+DELETE {{baseUrl}}shopping/user-carts/68a5bb9ce064082ef0e28e9a HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}

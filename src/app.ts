@@ -3,24 +3,17 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import { createServer } from 'http';
-import jwt from 'jsonwebtoken';
 import mongoose, { ConnectOptions, Model } from 'mongoose';
 import path from 'path';
 import { Server, Socket } from 'socket.io';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 import routes from './routes';
-import { decodeToken, verifyToken } from './utils/jwt';
+import { verifyToken } from './utils/jwt';
 import User from './models/User';
+import TestModel from './models/Test';
 
 // Load environment variables
 dotenv.config();
-
-// Simple interface for test model
-interface ITest extends mongoose.Document {
-  message: string;
-  createdAt: Date;
-}
-
 
 class App {
   public app: Application;
@@ -28,8 +21,6 @@ class App {
   public io: Server;
   private readonly MONGO_URI: string;
   private isDBConnected: boolean;
-  private TestModel: Model<ITest>;
-  private readonly JWT_SECRET: string;
 
   constructor() {
     this.app = express();
@@ -41,15 +32,7 @@ class App {
       }
     });
     this.MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/defaultdb';
-    this.JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
     this.isDBConnected = false;
-
-    // Initialize Test model schema
-    const testSchema = new mongoose.Schema({
-      message: { type: String, default: 'Hello MongoDB!' },
-      createdAt: { type: Date, default: Date.now }
-    });
-    this.TestModel = mongoose.model<ITest>('Test', testSchema);
 
     this.initializeMiddlewares();
     this.initializeDatabase();
@@ -89,11 +72,11 @@ class App {
       (async () => {
         try {
           // Create a test document
-          const testDoc = new this.TestModel();
+          const testDoc = new TestModel();
           await testDoc.save();
 
           // Retrieve all test documents
-          const docs = await this.TestModel.find().sort({ createdAt: -1 }).limit(10);
+          const docs = await TestModel.find().sort({ createdAt: -1 }).limit(10);
 
           res.json({
             status: 'success',
@@ -153,33 +136,7 @@ class App {
         socket.join(`user_${user.id}`);
         socket.join('authenticated_users');
       }
-
-  
-      // Chat message handler
-      socket.on('chat message', (data) => {
-        if (!user) {
-          return socket.emit('error', 'Unauthorized');
-        }
-
-        console.log(`Message from ${user.id}:`, data);
-
-        // Broadcast to all connected clients
-        this.io.emit('chat message', {
-          from: user.id,
-          message: data.message,
-          timestamp: new Date()
-        });
-
-        // Or send to specific user/room
-        if (data.recipientId) {
-          socket.to(`user_${data.recipientId}`).emit('private message', {
-            from: user.id,
-            message: data.message,
-            timestamp: new Date()
-          });
-        }
-      });
-
+      
       // Disconnection handler
       socket.on('disconnect', () => {
         console.log(`User ${user?.id} disconnected`);
