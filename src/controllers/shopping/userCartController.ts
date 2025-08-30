@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import { AuthRequest } from "../../interfaces/Auth";
 import UserCart, { IUserCart } from "../../models/shopping/UserCart";
 
+const asyncHandler = require("express-async-handler");
+
 const modelTitle = "User Cart";
 
 export const getUserCarts = async (req: AuthRequest, res: Response) => {
@@ -73,33 +75,31 @@ export const getUserCarts = async (req: AuthRequest, res: Response) => {
 
 export const createUserCart = async (req: AuthRequest, res: Response) => {
   try {
-    const { product, quantity, action } = req.body; // 👈 action bhi bhejna hoga (add, increment, decrement, set)
+    const { product, quantity, replace = true } = req.body;
     const { _id } = req.user;
 
     const existingData = await UserCart.findOne({ user: _id, product });
 
     if (existingData) {
-      if (action === "increment") {
-        existingData.quantity += 1;
-      } else if (action === "decrement") {
-        existingData.quantity = Math.max(1, existingData.quantity - 1); // 0 se niche na jaye
-      } else if (action === "set") {
-        existingData.quantity = quantity;
+      // Update quantity if product already exists in cart
+      if (replace) {
+        existingData.quantity = quantity; // Replace with new quantity
       } else {
-        existingData.quantity += quantity; // default add
+        existingData.quantity += quantity; // Add to existing quantity
       }
+      await existingData.save();
 
       await existingData.save();
       res.status(200).json({
         data: existingData,
-        message: `${modelTitle} updated successfully.`,
+        message: `${modelTitle} quantity updated successfully.`,
       });
       return;
     } else {
       // Agar cart me pehle se nahi hai to new entry banayenge
       const newData: IUserCart = new UserCart({
-        product,
-        quantity,
+        product: product,
+        quantity: quantity,
         user: new mongoose.Types.ObjectId(_id as string),
       });
 
@@ -118,7 +118,36 @@ export const createUserCart = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const updateUserCart = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { quantity } = req.body;
+      const { _id } = req.user;
 
+      // Check if cart item exists
+      const cartItem = await UserCart.findOne({ _id: id, user: _id });
+
+      if (!cartItem) {
+        return res.status(404).json({ message: "Cart item not found" });
+      }
+
+      // Update quantity (replace with new value)
+      cartItem.quantity = quantity;
+      await cartItem.save();
+
+      res.status(200).json({
+        data: cartItem,
+        message: "Cart quantity updated successfully",
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Error updating cart quantity",
+        error,
+      });
+    }
+  }
+);
 export const deleteUserCart = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;

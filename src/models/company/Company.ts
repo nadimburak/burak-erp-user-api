@@ -1,38 +1,46 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
+import Industry from "../catalog/Industry";
 
-// Interface for Designation Document
 export interface ICompany extends Document {
-  company_type?: mongoose.Types.ObjectId;
-  industries?: mongoose.Types.ObjectId;
+  company_type?: mongoose.Types.ObjectId; // reference to company_types._id
+  industries: mongoose.Types.ObjectId[]; // array of industry ObjectIds
+  owners: mongoose.Types.ObjectId[]; // array of industry ObjectIds
+  prefix: string;
+  name: string;
+  company_logo?: string; // optional as per table
+  contact_name?: string;
+  email?: string;
+  mobile?: string;
+  address?: string;
   country?: mongoose.Types.ObjectId;
   state?: mongoose.Types.ObjectId;
   city?: mongoose.Types.ObjectId;
-  name: string;
-  prefix: string;
-  contact_name: string;
-  email: string; // true or false
-  mobile: string;
-  address: string;
-  no_of_employees: number;
-  no_of_users: number;
-  status: string;
+  status: boolean;
   created_at: Date;
   updated_at: Date;
 }
 
-// Schema Definition
 const CompanySchema: Schema<ICompany> = new Schema(
   {
     company_type: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "CompanyType",
-      required: false,
+      required: true,
     },
-    industries: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Industry",
-      required: false,
-    }],
+    industries: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: Industry,
+        required: false,
+      },
+    ],
+    owners: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: false,
+      },
+    ],
     country: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Country",
@@ -48,11 +56,17 @@ const CompanySchema: Schema<ICompany> = new Schema(
       ref: "City",
       required: false,
     },
+    prefix: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     name: {
       type: String,
       required: true,
+      trim: true,
     },
-    prefix: {
+    company_logo: {
       type: String,
       required: false,
     },
@@ -64,6 +78,8 @@ const CompanySchema: Schema<ICompany> = new Schema(
       type: String,
       required: false,
       unique: true,
+      lowercase: true,
+      trim: true,
     },
     mobile: {
       type: String,
@@ -73,33 +89,16 @@ const CompanySchema: Schema<ICompany> = new Schema(
       type: String,
       required: false,
     },
-    no_of_employees: {
-      type: Number,
-      required: false,
-    },
-    no_of_users: {
-      type: Number,
-      required: false,
-    },
     status: {
-      type: String,
+      type: Boolean,
       required: false,
-    },
-    created_at: {
-      type: Date,
-      default: Date.now,
-    },
-    updated_at: {
-      type: Date,
-      default: Date.now,
     },
   },
   {
-    timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, // Mongoose will manage timestamps
+    timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
   }
 );
 
-// Model Definition
 const Company: Model<ICompany> = mongoose.model<ICompany>(
   "Company",
   CompanySchema
