@@ -1,6 +1,4 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
-import { RequestStatus } from "../../enums/RequestStatus";
-import { ProductTypes } from "../../enums/productType";
 
 
 // Interface for Designation Document

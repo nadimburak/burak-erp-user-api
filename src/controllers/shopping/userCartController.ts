@@ -78,7 +78,6 @@ export const createUserCart = async (req: AuthRequest, res: Response) => {
     const { product, quantity, replace = true } = req.body;
     const { _id } = req.user;
 
-    // Check if the user already has this product in cart
     const existingData = await UserCart.findOne({ user: _id, product });
 
     if (existingData) {
@@ -90,12 +89,14 @@ export const createUserCart = async (req: AuthRequest, res: Response) => {
       }
       await existingData.save();
 
+      await existingData.save();
       res.status(200).json({
         data: existingData,
         message: `${modelTitle} quantity updated successfully.`,
       });
+      return;
     } else {
-      // Create new cart item if it doesn't exist
+      // Agar cart me pehle se nahi hai to new entry banayenge
       const newData: IUserCart = new UserCart({
         product: product,
         quantity: quantity,
@@ -103,11 +104,11 @@ export const createUserCart = async (req: AuthRequest, res: Response) => {
       });
 
       await newData.save();
-
       res.status(201).json({
         data: newData,
         message: `${modelTitle} created successfully.`,
       });
+      return;
     }
   } catch (error) {
     res.status(500).json({
