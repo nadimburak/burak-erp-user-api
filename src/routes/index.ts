@@ -15,6 +15,9 @@ import middlewareRoutes from "./middleware";
 import permissionRoutes from "./permissions";
 import roleRoutes from "./roles";
 import userRoutes from "./users";
+import { authenticate } from "../middlewares/auth.middleware";
+import userChatRoutes from "./chat/userChat";
+import userCartRoutes from "./shopping/userCart";
 
 const app = express();
 
@@ -34,6 +37,8 @@ app.get("/seed", (req: Request, res: Response) => {
 
 app.use("/auth", authRoutes);
 
+app.use(authenticate);
+
 app.use("/middleware", middlewareRoutes);
 
 app.use("/user", [permissionRoutes, roleRoutes, userRoutes]);
@@ -46,6 +51,14 @@ app.use("/catalog", [
   MaritalStatusRoutes,
   designationRoutes,
   industryRoutes,
+]);
+
+app.use("/chat", [
+  userChatRoutes,
+]);
+
+app.use("/shopping", [
+  userCartRoutes,
 ]);
 
 // GET /catalog/genders

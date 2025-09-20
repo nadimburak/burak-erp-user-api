@@ -1,14 +1,13 @@
 import bcrypt from "bcrypt";
-import { Request, Response } from "express";
-import User, { IUser } from "../models/User";
+import { Response } from "express";
 import mongoose from "mongoose";
+import { AuthRequest } from "../interfaces/Auth";
+import User, { IUser } from "../models/User";
 
 const modelTitle = "User";
 
-
-
 //for only user type
-export const getUsers = async (req: Request, res: Response) => {
+export const getUsers = async (req: AuthRequest, res: Response) => {
   try {
     const {
       page = "1", // Default to page 1 if not provided
@@ -16,10 +15,10 @@ export const getUsers = async (req: Request, res: Response) => {
       sortBy = "name", // Default sorting field
       order = "asc", // Default order
       search = "",
-      type = "user", // Default type to 'user'
     } = req.query;
 
     const { company } = req.headers;
+    const { type } = req.user;
 
     // Parse and validate page and limit
     const parsedPage = Math.max(parseInt(page as string, 10), 1); // Minimum value 1
@@ -35,18 +34,26 @@ export const getUsers = async (req: Request, res: Response) => {
       }
       : {};
 
-    if (company) {
-      query.company = company; // Filter by company if provided
+    // Apply company filter based on user type and header
+    if (type !== "super_admin") {
+      if (company) {
+        query.company = company;
+      } else {
+        res.status(200).json({
+          data: [],
+          total: 0,
+          currentPage: 1,
+          totalPages: 0,
+        });
+        return;
+      }
     } else {
-      query.company = null;
+      if (company) {
+        query.company = company;
+      }
     }
 
-    // Add type to the query
-    // if (type) {
-    //   query.type = type; // Filter by type if provided
-    // } else {
-    //   query.type = "user"; // Default type to 'user'
-    // }
+    // If super_admin, don't add company filter – get all users
 
     // Fetch data with pagination, sorting, and filtering
     const data = await User.find(query)
@@ -67,17 +74,19 @@ export const getUsers = async (req: Request, res: Response) => {
       currentPage: parsedPage,
       totalPages: Math.ceil(totalData / parsedLimit),
     });
+    return;
   } catch (error) {
     res.status(500).json({ message: `Error ${modelTitle}.`, error });
   }
 };
 
-export const getUser = async (req: Request, res: Response) => {
+export const getUser = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
     const data = await User.findById(id)
       .select("-password")
+      .populate("company", "name") // Exclude password
       .populate("role", "name"); // Exclude password
     if (!data) {
       res.status(404).json({ message: `${modelTitle} not found.` });
@@ -89,7 +98,7 @@ export const getUser = async (req: Request, res: Response) => {
   }
 };
 
-export const createUser = async (req: Request, res: Response) => {
+export const createUser = async (req: AuthRequest, res: Response) => {
   try {
     const { role, name, email, password, status, image, type } = req.body;
 
@@ -111,6 +120,10 @@ export const createUser = async (req: Request, res: Response) => {
       status,
       type: type || "user", // Default type to 'user' if not provided
     });
+
+    if (company) {
+      newData.company = [new mongoose.Types.ObjectId(company as string)];
+    }
     await newData.save();
 
     res
@@ -121,10 +134,10 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
-export const updateUser = async (req: Request, res: Response) => {
+export const updateUser = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, email, password, role, status, image, type } = req.body;
+    const { name, email, role, status, image, type } = req.body;
     const { company } = req.headers;
 
     const updatedData: Partial<IUser> = {
@@ -138,13 +151,13 @@ export const updateUser = async (req: Request, res: Response) => {
 
     // Update company if provided in headers
     if (company) {
-      updatedData.company = new mongoose.Types.ObjectId(company as string); // Convert to ObjectId
+      updatedData.company = [new mongoose.Types.ObjectId(company as string)]; // Convert to ObjectId
     }
 
-    if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      updatedData.password = hashedPassword; // Update password only if provided
-    }
+    // if (password) {
+    //   const hashedPassword = await bcrypt.hash(password, 10);
+    //   updatedData.password = hashedPassword; // Update password only if provided
+    // }
 
     const updatedUser = await User.findByIdAndUpdate(
       id,
@@ -165,7 +178,7 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
+export const deleteUser = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -180,7 +193,7 @@ export const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export const updatePassword = async (req: Request, res: Response) => {
+export const updatePassword = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { password } = req.body;
